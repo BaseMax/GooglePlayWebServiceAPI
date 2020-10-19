@@ -75,7 +75,15 @@ class GooglePlay {
 			return $values;
 			$values["name"]=null;
 		}
-	}
+
+		preg_match('/href="\/store\/apps\/developer\?id=(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a>/i', $input, $developer);
+		if(isset($developer["id"], $developer["content"])) {
+			$values["developer"]=trim(strip_tags($developer["content"]));
+		}
+		else {
+			$values["developer"]=null;
+		}
+}
 }
 $google = new GooglePlay();
 $google->parseApplication("com.bezapps.flowdiademo");
