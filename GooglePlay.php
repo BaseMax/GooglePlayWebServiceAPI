@@ -120,6 +120,20 @@ class GooglePlay {
 
 		// preg_match_all('/item-index="([0-9]+)"><img (data-|)src="(?<content>[^\"]+)" srcset/i', $input, $images);
 		// preg_match_all('/data-ils="3" jsaction="rcuQ6b:trigger.M8vzZb;" data-srcset="(?<content>[^\"]+)"/i', $input, $images);
+		preg_match('/<div class="Rx5dXb"([^\>]+|)>(?<content>.*?)<c-data/i', $input, $image);
+		// print_r($image);
+		if(isset($image["content"])) {
+			preg_match_all('/<img data-src="(?<content>[^\"]+)"/i', $image["content"], $images);
+			if(isset($images["content"])) {
+				$values["images"]=$images["content"];
+			}
+			else {
+				$values["images"]=null;
+			}
+		}
+		else {
+			$values["images"]=null;
+		}	
 	}
 }
 $google = new GooglePlay();
