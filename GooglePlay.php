@@ -142,6 +142,14 @@ class GooglePlay {
 		else {
 			$values["updated"]=null;
 		}
+
+		preg_match('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $version);
+		if(isset($version["content"])) {
+			$values["version"]=trim(strip_tags($version["content"]));
+		}
+		else {
+			$values["version"]=null;
+		}
 	}
 }
 $google = new GooglePlay();
