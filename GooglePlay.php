@@ -83,7 +83,25 @@ class GooglePlay {
 		else {
 			$values["developer"]=null;
 		}
-}
+
+		preg_match('/itemprop="genre" href="\/store\/apps\/category\/(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a><\/span>/i', $input, $category);
+		if(isset($category["id"], $category["content"])) {
+			$values["category"]=trim(strip_tags($category["content"]));
+			$isGame=false;
+			foreach($this->categories["game"] as $game) {
+				// if($values["category"] == $game) {
+				if(strtolower($values["category"]) == strtolower($game)) {
+					$isGame=true;
+					break;
+				}
+			}
+			$values["type"]=$isGame ? "game" : "app";
+		}
+		else {
+			$values["category"]=null;
+			$values["type"]=null;
+		}
+	}
 }
 $google = new GooglePlay();
 $google->parseApplication("com.bezapps.flowdiademo");
