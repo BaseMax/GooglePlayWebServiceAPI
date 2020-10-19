@@ -1,7 +1,14 @@
 <?php
-// Max Base
-// github.com/basemax/GooglePlayWebServiceAPI
-// 2020-10-19
+/**
+*
+* @Name : GooglePlayWebServiceAPI/google-play.php
+* @Version : 0.1
+* @Programmer : Max
+* @Date : 2020-10-19
+* @Released under : https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
+* @Repository : https://github.com/BaseMax/GooglePlayWebServiceAPI
+*
+**/
 class GooglePlay {
 	private $debug=true;
 	private $categories=[
