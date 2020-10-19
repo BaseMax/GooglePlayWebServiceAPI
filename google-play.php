@@ -188,5 +188,3 @@ class GooglePlay {
 		return $values;
 	}
 }
-$google = new GooglePlay();
-$google->parseApplication("com.bezapps.flowdiademo");
