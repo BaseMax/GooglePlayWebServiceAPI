@@ -63,6 +63,18 @@ class GooglePlay {
 		],
 	];
 	public function parseApplication($packageName) {
+		$input=file_get_contents("https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US");
+		$values=[];
+		$values["packageName"]=$packageName;
+
+		preg_match('/itemprop="name">(?<content>.*?)<\/h1>/', $input, $name);
+		if(isset($name["content"])) {
+			$values["name"]=trim(strip_tags($name["content"]));
+		}
+		else {
+			return $values;
+			$values["name"]=null;
+		}
 	}
 }
 $google = new GooglePlay();
