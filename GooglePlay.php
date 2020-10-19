@@ -133,8 +133,8 @@ class GooglePlay {
 		}
 		else {
 			$values["images"]=null;
-		}	
-
+		}
+		
 		preg_match('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $updated);
 		if(isset($updated["content"])) {
 			$values["updated"]=trim(strip_tags($updated["content"]));
@@ -175,6 +175,10 @@ class GooglePlay {
 			$values["age"]=null;
 		}
 
+		if($this->debug) {
+			print_r($values);
+		}
+		return $values;
 	}
 }
 $google = new GooglePlay();
