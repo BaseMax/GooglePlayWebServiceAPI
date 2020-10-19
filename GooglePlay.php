@@ -101,6 +101,14 @@ class GooglePlay {
 			$values["category"]=null;
 			$values["type"]=null;
 		}
+
+		preg_match('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i', $input, $description);
+		if(isset($description["content"])) {
+			$values["description"]=trim($description["content"]);
+		}
+		else {
+			$values["description"]=null;
+		}
 	}
 }
 $google = new GooglePlay();
