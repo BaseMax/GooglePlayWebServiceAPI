@@ -13,6 +13,22 @@ print_r($app);
 ?>
 ```
 
+### Application Structure
+
+- packageName
+- name
+- developer
+- category
+- type (game, app)
+- description
+- icon
+- images
+- updated
+- version
+- require
+- install
+- age
+
 ### Output Google Play structure
 
 Crawl from: https://play.google.com/store/apps/details?id=com.bezapps.flowdiademo&hl=en_US&gl=US
