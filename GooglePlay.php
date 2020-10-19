@@ -158,6 +158,14 @@ class GooglePlay {
 		else {
 			$values["require"]=null;
 		}
+
+		preg_match('/<div class="hAyfc"><div class="BgcNfc">Installs<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $install);
+		if(isset($install["content"])) {
+			$values["install"]=trim(strip_tags($install["content"]));
+		}
+		else {
+			$values["install"]=null;
+		}
 	}
 }
 $google = new GooglePlay();
