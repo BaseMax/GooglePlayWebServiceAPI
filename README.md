@@ -51,6 +51,11 @@ Array
 )
 ```
 
+### TODO
+
+- Unit test
+- Adding more method (search, get application by category etc...)
+
 ---------
 
 # Max Base
