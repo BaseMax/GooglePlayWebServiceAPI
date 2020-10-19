@@ -109,6 +109,17 @@ class GooglePlay {
 		else {
 			$values["description"]=null;
 		}
+
+		preg_match('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i', $input, $icon);
+		if(isset($icon["content"])) {
+			$values["icon"]=trim($icon["content"]);
+		}
+		else {
+			$values["icon"]=null;
+		}
+
+		// preg_match_all('/item-index="([0-9]+)"><img (data-|)src="(?<content>[^\"]+)" srcset/i', $input, $images);
+		// preg_match_all('/data-ils="3" jsaction="rcuQ6b:trigger.M8vzZb;" data-srcset="(?<content>[^\"]+)"/i', $input, $images);
 	}
 }
 $google = new GooglePlay();
