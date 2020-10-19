@@ -62,6 +62,8 @@ class GooglePlay {
 			"Word",
 		],
 	];
+	public function parseApplication($packageName) {
+	}
 }
 $google = new GooglePlay();
 $google->parseApplication("com.bezapps.flowdiademo");
