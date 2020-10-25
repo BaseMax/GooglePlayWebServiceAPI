@@ -2,6 +2,13 @@
 
 Tiny script to crawl information of a specific application in the Google play/store base on PHP.
 
+## PHP GooglePlay Methods
+
+- parse
+- parseSearch
+- parseCategory
+- parseApplication
+
 ## Using PHP GooglePlay
 
 ```php
