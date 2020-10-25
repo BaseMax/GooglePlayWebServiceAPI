@@ -187,4 +187,24 @@ class GooglePlay {
 		}
 		return $values;
 	}
+
+	public function parse($link=null) {
+		if($link == "" || $link ==  null) {
+			$link="https://play.google.com/apps";
+		}
+		$input=file_get_contents($link);
+		preg_match_all('/href="\/store\/apps\/details\?id=(?<ids>[^\"]+)"/i', $input, $ids);
+		if(isset($ids["ids"])) {
+			$ids=$ids["ids"];
+			$ids=array_values(array_unique($ids));
+			$values=$ids;
+		}
+		else {
+			$values=[];
+		}
+		if($this->debug) {
+			print_r($values);
+		}
+		return $values;
+	}
 }
