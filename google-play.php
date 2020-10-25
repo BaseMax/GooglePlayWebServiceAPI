@@ -207,4 +207,9 @@ class GooglePlay {
 		}
 		return $values;
 	}
+
+	public function parseCategory($category) {
+		$link="https://play.google.com/store/apps/category/".$category;
+		return $this->parse($link);
+	}
 }
