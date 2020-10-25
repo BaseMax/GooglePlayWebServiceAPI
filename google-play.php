@@ -2,9 +2,9 @@
 /**
 *
 * @Name : GooglePlayWebServiceAPI/google-play.php
-* @Version : 0.1
+* @Version : 0.2
 * @Programmer : Max
-* @Date : 2020-10-19
+* @Date : 2020-10-19, 2020-10-25
 * @Released under : https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
 * @Repository : https://github.com/BaseMax/GooglePlayWebServiceAPI
 *
