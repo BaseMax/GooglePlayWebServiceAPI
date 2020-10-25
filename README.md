@@ -8,8 +8,19 @@ Tiny script to crawl information of a specific application in the Google play/st
 <?php
 require "google-play.php";
 $google = new GooglePlay();
+
 $app=$google->parseApplication("com.bezapps.flowdiademo");
 print_r($app);
+
+
+$app=$google->parseApplication("com.bezapps.flowdiademo");
+print_r($app);
+
+$apps=$google->parseSearch("telegram");
+print_r($apps);
+
+$apps=$google->parseCategory("TOOLS");
+print_r($apps);
 ?>
 ```
 
