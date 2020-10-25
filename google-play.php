@@ -212,4 +212,9 @@ class GooglePlay {
 		$link="https://play.google.com/store/apps/category/".$category;
 		return $this->parse($link);
 	}
+
+	public function parseSearch($query) {
+		$link="https://play.google.com/store/search?q=".$query."&c=apps";
+		return $this->parse($link);
+	}
 }
