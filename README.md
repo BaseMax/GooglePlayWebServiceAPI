@@ -35,7 +35,7 @@ print_r($apps);
 
 ### How to action as a crawler and find more applications?
 
-```
+```php
 $alphas = range('A', 'Z');
 foreach($alphas as $alpha) {
     $apps=$google->parseSearch($alpha);
@@ -44,7 +44,7 @@ foreach($alphas as $alpha) {
 ```
 
 Or:
-```
+```php
 $alphas = range('A', 'Z');
 foreach($alphas as $alpha) {
     $apps=$google->parseSearch($alpha);
@@ -57,7 +57,7 @@ foreach($alphas as $alpha) {
 ```
 
 It's more:
-```
+```php
 $alphas = range('A', 'Z');
 foreach($alphas as $alpha) {
   $apps=$google->parseSearch($alpha);
