@@ -4,13 +4,13 @@
 * @Name : GooglePlayWebServiceAPI/google-play.php
 * @Version : 0.2
 * @Programmer : Max
-* @Date : 2020-10-19, 2020-10-25
+* @Date : 2020-10-19, 2020-10-25, 2020-10-29
 * @Released under : https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
 * @Repository : https://github.com/BaseMax/GooglePlayWebServiceAPI
 *
 **/
 class GooglePlay {
-	private $debug=true;
+	private $debug=false;
 	private $categories=[
 		"app"=>[
 			"Art & Design",
@@ -70,15 +70,19 @@ class GooglePlay {
 		],
 	];
 	public function parseApplication($packageName) {
-		$input=file_get_contents("https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US");
+	    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
+		$input=file_get_contents($link);
+// 		file_put_contents("t.html", $input);
 		$values=[];
 		$values["packageName"]=$packageName;
-
+        // print $link."\n";
 		preg_match('/itemprop="name">(?<content>.*?)<\/h1>/', $input, $name);
+// 		print_r($name);
 		if(isset($name["content"])) {
 			$values["name"]=trim(strip_tags($name["content"]));
 		}
 		else {
+		    return [];
 			return $values;
 			$values["name"]=null;
 		}
@@ -144,34 +148,34 @@ class GooglePlay {
 		
 		preg_match('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $updated);
 		if(isset($updated["content"])) {
-			$values["updated"]=trim(strip_tags($updated["content"]));
+			$values["lastUpdated"]=trim(strip_tags($updated["content"]));
 		}
 		else {
-			$values["updated"]=null;
+			$values["lastUpdated"]=null;
 		}
 
 		preg_match('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $version);
 		if(isset($version["content"])) {
-			$values["version"]=trim(strip_tags($version["content"]));
+			$values["versionName"]=trim(strip_tags($version["content"]));
 		}
 		else {
-			$values["version"]=null;
+			$values["versionName"]=null;
 		}
 
 		preg_match('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $require);
 		if(isset($require["content"])) {
-			$values["require"]=trim(strip_tags($require["content"]));
+			$values["minimumSDKVersion"]=trim(strip_tags($require["content"]));
 		}
 		else {
-			$values["require"]=null;
+			$values["minimumSDKVersion"]=null;
 		}
 
 		preg_match('/<div class="hAyfc"><div class="BgcNfc">Installs<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $install);
 		if(isset($install["content"])) {
-			$values["install"]=trim(strip_tags($install["content"]));
+			$values["installs"]=trim(strip_tags($install["content"]));
 		}
 		else {
-			$values["install"]=null;
+			$values["installs"]=null;
 		}
 
 		preg_match('/<div class="hAyfc"><div class="BgcNfc">Content Rating<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb"><div>(?<content>.*?)<\/div>/i', $input, $age);
