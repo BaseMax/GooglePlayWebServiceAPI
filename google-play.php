@@ -2,9 +2,9 @@
 /**
 *
 * @Name : GooglePlayWebServiceAPI/google-play.php
-* @Version : 0.2
+* @Version : 0.3
 * @Programmer : Max
-* @Date : 2020-10-19, 2020-10-25, 2020-10-29
+* @Date : 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30
 * @Released under : https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
 * @Repository : https://github.com/BaseMax/GooglePlayWebServiceAPI
 *
@@ -215,6 +215,10 @@ class GooglePlay {
 	public function parseCategory($category) {
 		$link="https://play.google.com/store/apps/category/".$category;
 		return $this->parse($link);
+	}
+
+	public function parseCategories() {
+		return array_merge($this->categories["game"], $this->categories["app"]);
 	}
 
 	public function parseSearch($query) {
