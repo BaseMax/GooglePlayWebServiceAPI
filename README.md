@@ -7,7 +7,9 @@ Tiny script to crawl information of a specific application in the Google play/st
 - parse
 - parseSearch
 - parseCategory
+- parseCategories
 - parseApplication
+
 
 ## Using PHP GooglePlay
 
@@ -29,6 +31,46 @@ print_r($apps);
 $apps=$google->parseCategory("TOOLS");
 print_r($apps);
 ?>
+```
+
+### How to action as a crawler and find more applications?
+
+```
+$alphas = range('A', 'Z');
+foreach($alphas as $alpha) {
+    $apps=$google->parseSearch($alpha);
+    insertApps($apps);
+}
+```
+
+Or:
+```
+$alphas = range('A', 'Z');
+foreach($alphas as $alpha) {
+    $apps=$google->parseSearch($alpha);
+    insertApps($apps);
+    foreach($alphas as $alpha2) {
+        $apps=$google->parseSearch($alpha.$alpha2);
+        insertApps($apps);
+    }
+}
+```
+
+It's more:
+```
+$alphas = range('A', 'Z');
+foreach($alphas as $alpha) {
+  $apps=$google->parseSearch($alpha);
+  insertApps($apps);
+  foreach($alphas as $alpha2) {
+    $apps=$google->parseSearch($alpha.$alpha2);
+    insertApps($apps);
+    foreach($alphas as $alpha3) {
+      $apps=$google->parseSearch($alpha.$alpha2.$alpha3);
+      insertApps($apps);
+    }
+  }
+}
 ```
 
 ### Application Structure
