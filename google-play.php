@@ -135,17 +135,22 @@ class GooglePlay {
 		// print_r($image);
 		if(isset($image["content"])) {
 			preg_match_all('/<img data-src="(?<content>[^\"]+)"/i', $image["content"], $images);
-			if(isset($images["content"])) {
+			if(isset($images["content"]) && !empty($images["content"])) {
 				$values["images"]=$images["content"];
 			}
 			else {
-				$values["images"]=null;
+				preg_match_all('/<img src="[^"]*" srcset="(?<content>[^\s"]+)/i', $image["content"], $images);
+				if(isset($images["content"])) {
+					$values["images"]=$images["content"];
+				} else {
+					$values["images"]=null;
+				}
 			}
 		}
 		else {
 			$values["images"]=null;
 		}
-		
+
 		preg_match('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i', $input, $updated);
 		if(isset($updated["content"])) {
 			$values["lastUpdated"]=trim(strip_tags($updated["content"]));
