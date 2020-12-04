@@ -207,6 +207,20 @@ class GooglePlay {
 			$values["votes"]=null;
 		}
 
+		preg_match('/<meta itemprop="price" content="(?<content>[^"]+)">/i', $input, $price);
+		if (isset($price["content"])) {
+			$values["price"]=$price["content"];
+		} else {
+			$values["price"]=null;
+		}
+
+		preg_match('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i', $input, $size);
+		if (isset($size["content"])) {
+			$values["size"]=$size["content"];
+		} else {
+			$values["size"]=null;
+		}
+
 		if($this->debug) {
 			print_r($values);
 		}
