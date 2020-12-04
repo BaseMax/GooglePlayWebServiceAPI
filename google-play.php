@@ -129,6 +129,13 @@ class GooglePlay {
 			$values["icon"]=null;
 		}
 
+		preg_match('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i', $input, $feature);
+		if(isset($feature["content"])) {
+			$values["featureGraphic"]=trim($feature["content"]);
+		} else {
+			$values["featureGraphic"]=null;
+		}
+
 		// preg_match_all('/item-index="([0-9]+)"><img (data-|)src="(?<content>[^\"]+)" srcset/i', $input, $images);
 		// preg_match_all('/data-ils="3" jsaction="rcuQ6b:trigger.M8vzZb;" data-srcset="(?<content>[^\"]+)"/i', $input, $images);
 		preg_match('/<div class="Rx5dXb"([^\>]+|)>(?<content>.*?)<c-data/i', $input, $image);
