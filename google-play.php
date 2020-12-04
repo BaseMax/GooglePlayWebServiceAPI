@@ -193,6 +193,20 @@ class GooglePlay {
 			$values["age"]=null;
 		}
 
+		preg_match('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i', $input, $rating);
+		if (isset($rating["content"])) {
+			$values["rating"]=trim($rating["content"]);
+		} else {
+			$values["rating"]=null;
+		}
+
+		preg_match('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i', $input, $votes);
+		if (isset($votes["content"])) {
+			$values["votes"]=trim($votes["content"]);
+		} else {
+			$values["votes"]=null;
+		}
+
 		if($this->debug) {
 			print_r($values);
 		}
