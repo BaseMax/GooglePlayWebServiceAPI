@@ -71,7 +71,9 @@ class GooglePlay {
 	];
 	public function parseApplication($packageName) {
 	    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
-		$input=file_get_contents($link);
+		if ( ! $input = @file_get_contents($link) ) {
+		  return [];
+		}
 // 		file_put_contents("t.html", $input);
 		$values=[];
 		$values["packageName"]=$packageName;
