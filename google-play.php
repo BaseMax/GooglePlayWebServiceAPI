@@ -72,7 +72,7 @@ class GooglePlay {
 	public function parseApplication($packageName) {
 	    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
 		if ( ! $input = @file_get_contents($link) ) {
-		  return [];
+			return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
 		}
 // 		file_put_contents("t.html", $input);
 		$values=[];
@@ -84,7 +84,7 @@ class GooglePlay {
 			$values["name"]=trim(strip_tags($name["content"]));
 		}
 		else {
-		    return [];
+		    return ['success'=>0,'message'=>'No app data found'];
 			return $values;
 			$values["name"]=null;
 		}
@@ -191,6 +191,7 @@ class GooglePlay {
 		if($this->debug) {
 			print_r($values);
 		}
+		$values['success'] = 1;
 		return $values;
 	}
 
