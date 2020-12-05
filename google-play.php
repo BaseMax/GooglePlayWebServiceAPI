@@ -70,23 +70,16 @@ class GooglePlay {
 		],
 	];
 	public function parseApplication($packageName) {
-	    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
-		if ( ! $input = @file_get_contents($link) ) {
+		$link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
+		if ( ! $this->input = @file_get_contents($link) ) {
 			return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
 		}
-// 		file_put_contents("t.html", $input);
 		$values=[];
 		$values["packageName"]=$packageName;
-        // print $link."\n";
-		preg_match('/itemprop="name">(?<content>.*?)<\/h1>/', $input, $name);
-// 		print_r($name);
-		if(isset($name["content"])) {
 			$values["name"]=trim(strip_tags($name["content"]));
 		}
 		else {
 		    return ['success'=>0,'message'=>'No app data found'];
-			return $values;
-			$values["name"]=null;
 		}
 
 		preg_match('/href="\/store\/apps\/developer\?id=(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a>/i', $input, $developer);
@@ -102,7 +95,6 @@ class GooglePlay {
 			$values["category"]=trim(strip_tags($category["content"]));
 			$isGame=false;
 			foreach($this->categories["game"] as $game) {
-				// if($values["category"] == $game) {
 				if(strtolower($values["category"]) == strtolower($game)) {
 					$isGame=true;
 					break;
