@@ -129,6 +129,13 @@ class GooglePlay {
 			$values["icon"]=null;
 		}
 
+		preg_match('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i', $input, $feature);
+		if(isset($feature["content"])) {
+			$values["featureGraphic"]=trim($feature["content"]);
+		} else {
+			$values["featureGraphic"]=null;
+		}
+
 		// preg_match_all('/item-index="([0-9]+)"><img (data-|)src="(?<content>[^\"]+)" srcset/i', $input, $images);
 		// preg_match_all('/data-ils="3" jsaction="rcuQ6b:trigger.M8vzZb;" data-srcset="(?<content>[^\"]+)"/i', $input, $images);
 		preg_match('/<div class="Rx5dXb"([^\>]+|)>(?<content>.*?)<c-data/i', $input, $image);
@@ -189,6 +196,34 @@ class GooglePlay {
 		}
 		else {
 			$values["age"]=null;
+		}
+
+		preg_match('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i', $input, $rating);
+		if (isset($rating["content"])) {
+			$values["rating"]=trim($rating["content"]);
+		} else {
+			$values["rating"]=null;
+		}
+
+		preg_match('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i', $input, $votes);
+		if (isset($votes["content"])) {
+			$values["votes"]=trim($votes["content"]);
+		} else {
+			$values["votes"]=null;
+		}
+
+		preg_match('/<meta itemprop="price" content="(?<content>[^"]+)">/i', $input, $price);
+		if (isset($price["content"])) {
+			$values["price"]=$price["content"];
+		} else {
+			$values["price"]=null;
+		}
+
+		preg_match('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i', $input, $size);
+		if (isset($size["content"])) {
+			$values["size"]=$size["content"];
+		} else {
+			$values["size"]=null;
 		}
 
 		if($this->debug) {
