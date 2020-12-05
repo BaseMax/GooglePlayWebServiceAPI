@@ -106,6 +106,8 @@ class GooglePlay {
 			$values["type"]=null;
 		}
 
+		$proto = json_decode($this->getRegVal('/data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims'));
+		$values["summary"] = $proto[0][10][1][1];
 		$values["description"] = $this->getRegVal('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i');
 		$values["icon"] = $this->getRegVal('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i');
 		$values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i','$1',$this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
