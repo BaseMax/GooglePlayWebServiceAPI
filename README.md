@@ -141,6 +141,74 @@ Array
 )
 ```
 
+### Obtaining app permissions
+Using `$google->parsePerms($packageName)` you can obtain permissions for a given app. As with the structures returned for apps, the keys `success` and `message` are used to indicate the status. For data itself, you'll find a list by permission groups behind the `grouped` key – and "unified permissions" behind the `perms` key. Example output:
+
+```
+Array
+(
+    [success] => 1
+    [grouped] => Array
+        (
+            [storage] => Array
+                (
+                    [group_name] => Storage
+                    [perms] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [0] => 
+                                    [1] => modify or delete the contents of your USB storage
+                                )
+                            [1] => Array
+                                (
+                                    [0] => 
+                                    [1] => read the contents of your USB storage
+                                )
+                        )
+                )
+            [perm_media] => Array
+                (
+                    [group_name] => Photos/Media/Files
+                    [perms] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [0] => 
+                                    [1] => modify or delete the contents of your USB storage
+                                )
+                            [1] => Array
+                                (
+                                    [0] => 
+                                    [1] => read the contents of your USB storage
+                                )
+                        )
+                )
+            [perm_camera_mic] => Array
+                (
+                    [group_name] => Microphone
+                    [perms] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [0] => 
+                                    [1] => record audio
+                                )
+                        )
+                )
+        )
+    [perms] => Array
+        (
+            [0] => modify or delete the contents of your USB storage
+            [1] => read the contents of your USB storage
+            [4] => record audio
+        )
+)
+```
+
+The `grouped` keys are the IDs given to the permission groups by Google. The empty `[0]` key for permissions in the `grouped` tree is as shipped by Google; no idea what it is reserved for until some values show up here.
+
+
 ### TODO
 
 - Unit test

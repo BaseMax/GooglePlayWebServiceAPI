@@ -166,6 +166,43 @@ class GooglePlay {
     return $values;
   }
 
+  public function parsePerms($packageName) {
+    $opts = ['http' => array(
+      'method'  => 'POST',
+      'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
+                  ."\r\n".'Referer: https://play.google.com/',
+      'content' => 'f.req=%5B%5B%5B%22xdSrCf%22%2C%22%5B%5Bnull%2C%5B%5C%22'.$packageName.'%5C%22%2C7%5D%2C%5B%5D%5D%5D%22%2Cnull%2C%221%22%5D%5D%5D',
+      'ignore_errors' => TRUE
+      )
+    ];
+    $context  = stream_context_create($opts);
+    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl=en&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
+      preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i",$http_response_header[0],$match);
+      $response_code = $match[1];
+      switch ($response_code) {
+        case "200" : // HTTP/1.0 200 OK
+          break;
+        case "400" : // echo "! No XHR for '$pkg'\n";
+        case "404" : // app no longer on play
+        default:
+          return ['success'=>0,'message'=>$http_response_header[0]];
+          break;
+      }
+    } else { // network error (e.g. "failed to open stream: Connection timed out")
+      return ['success'=>0,'message'=>'network error'];
+    }
+
+    $perms = $perms_unique = [];
+    $json = preg_replace('!.*?(\[.+?\])\s*\d.*!ims','$1',$proto);
+    $arr = json_decode($json)[0][2];
+    foreach (json_decode($arr)[0] as $group) { // 0: group name, 1: group icon, 2: perms, 3: group_id
+      $perms[$group[3][0]] = ['group_name'=>$group[0], 'perms'=>$group[2]];
+      foreach($group[2] as $perm) $perms_unique[] = $perm[1];
+    }
+
+    return ['success'=>1,'grouped'=>$perms,'perms'=>array_unique($perms_unique)];
+  }
+
   public function parseCategory($category) {
     $link="https://play.google.com/store/apps/category/".$category;
     return $this->parse($link);
