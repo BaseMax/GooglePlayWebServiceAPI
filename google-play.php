@@ -76,8 +76,8 @@ class GooglePlay {
     else return null;
   }
 
-  public function parseApplication($packageName) {
-    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
+  public function parseApplication($packageName,$lang='en_US',$loc='US') {
+    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=$lang&gl=$loc";
     if ( ! $this->input = @file_get_contents($link) ) {
       return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
     }
@@ -166,7 +166,7 @@ class GooglePlay {
     return $values;
   }
 
-  public function parsePerms($packageName) {
+  public function parsePerms($packageName,$lang='en') {
     $opts = ['http' => array(
       'method'  => 'POST',
       'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
@@ -176,7 +176,7 @@ class GooglePlay {
       )
     ];
     $context  = stream_context_create($opts);
-    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl=en&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
+    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl='.$lang.'&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i",$http_response_header[0],$match);
       $response_code = $match[1];
       switch ($response_code) {
