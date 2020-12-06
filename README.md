@@ -141,6 +141,19 @@ Array
 )
 ```
 
+On failure, the result looks like this:
+
+```
+Array
+(
+    [success] => 0
+    [message] => HTTP/1.0 404 Not Found
+)
+```
+
+The message most often is the "server response" – but could also be something like `'No app data found'` if server response indicated success but the results were not parsable.
+
+
 ### Obtaining app permissions
 Using `$google->parsePerms($packageName)` you can obtain permissions for a given app. As with the structures returned for apps, the keys `success` and `message` are used to indicate the status. For data itself, you'll find a list by permission groups behind the `grouped` key – and "unified permissions" behind the `perms` key. Example output:
 
@@ -207,6 +220,8 @@ Array
 ```
 
 The `grouped` keys are the IDs given to the permission groups by Google. The empty `[0]` key for permissions in the `grouped` tree is as shipped by Google; no idea what it is reserved for until some values show up here.
+
+For results on failure, please see above.
 
 
 ### TODO
