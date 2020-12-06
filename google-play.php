@@ -84,7 +84,7 @@ class GooglePlay {
     $values["packageName"]=$packageName;
 
     $values["name"] = strip_tags($this->getRegVal('/itemprop="name">(?<content>.*?)<\/h1>/'));
-    if ($values["name"]===null) {
+    if ($values["name"]==null) {
       return ['success'=>0,'message'=>'No app data found'];
     }
 
