@@ -88,6 +88,15 @@ foreach($alphas as $alpha) {
 - require
 - install
 - age
+- rating
+- votes
+- price
+- size
+- success (1 if data was retrieved, 0 otherwise)
+- message (only with success==0, telling you what failed)
+
+If retrieving data failed, the returned array will only hold the keys `success` and `message`. If it succeeded, there won't be a `message` key.
+
 
 ### Output Google Play structure
 
@@ -124,6 +133,11 @@ Array
     [require] => 4.4 and up
     [install] => 500,000+
     [age] => Everyone
+    [rating] => 3.9
+    [votes] => 1,820
+    [price] => 0
+    [size] => Varies with device
+    [success] => 1
 )
 ```
 
