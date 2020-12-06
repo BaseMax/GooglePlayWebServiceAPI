@@ -69,6 +69,7 @@ class GooglePlay {
       "Word",
     ],
   ];
+
   protected function getRegVal($regEx) {
     preg_match($regEx, $this->input, $res);
     if(isset($res["content"])) return trim($res["content"]);
