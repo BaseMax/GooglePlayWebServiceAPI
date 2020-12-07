@@ -38,7 +38,7 @@ class GooglePlay {
       $values["category"]=trim(strip_tags($category["content"]));
       $catId=trim(strip_tags($category["id"]));
       if($catId=='GAME' || substr($catId,0,5)=='GAME_') $values["type"]="game";
-      elseif($catId=='FAMILY' || substr($catId,0,7)=='FAMILY_') $values["type"]="family";
+      elseif($catId=='FAMILY' || substr($catId,0,7)=='FAMILY?') $values["type"]="family";
       else $values["type"]="app";
     } else {
       $values["category"]=null;
