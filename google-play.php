@@ -18,7 +18,7 @@ class GooglePlay {
     else return null;
   }
 
-  public function parseApplication($packageName,$lang='en_US',$loc='US') {
+  public function parseApplication($packageName, $lang='en_US', $loc='US') {
     $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=$lang&gl=$loc";
     if ( ! $this->input = @file_get_contents($link) ) {
       return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
@@ -110,7 +110,7 @@ class GooglePlay {
     return $values;
   }
 
-  public function parsePerms($packageName,$lang='en') {
+  public function parsePerms($packageName, $lang='en') {
     $opts = ['http' => array(
       'method'  => 'POST',
       'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
