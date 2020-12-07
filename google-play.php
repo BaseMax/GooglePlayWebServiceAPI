@@ -11,64 +11,6 @@
 **/
 class GooglePlay {
   private $debug=false;
-  private $categories=[
-    "app"=>[
-      "Art & Design",
-      "Augmented Reality",
-      "Auto & Vehicles",
-      "Beauty",
-      "Books & Reference",
-      "Business",
-      "Comics",
-      "Communication",
-      "Dating",
-      "Daydream",
-      "Education",
-      "Entertainment",
-      "Events",
-      "Finance",
-      "Food & Drink",
-      "Health & Fitness",
-      "House & Home",
-      "Libraries & Demo",
-      "Lifestyle",
-      "Maps & Navigation",
-      "Medical",
-      "Music & Audio",
-      "News & Magazines",
-      "Parenting",
-      "Personalization",
-      "Photography",
-      "Productivity",
-      "Shopping",
-      "Social",
-      "Sports",
-      "Tools",
-      "Travel & Local",
-      "Video Players & Editors",
-      "Wear OS by Google",
-      "Weather",
-    ],
-    "game"=>[
-      "Action",
-      "Adventure",
-      "Arcade",
-      "Board",
-      "Card",
-      "Casino",
-      "Casual",
-      "Educational",
-      "Music",
-      "Puzzle",
-      "Racing",
-      "Role Playing",
-      "Simulation",
-      "Sports",
-      "Strategy",
-      "Trivia",
-      "Word",
-    ],
-  ];
 
   protected function getRegVal($regEx) {
     preg_match($regEx, $this->input, $res);
@@ -76,8 +18,8 @@ class GooglePlay {
     else return null;
   }
 
-  public function parseApplication($packageName) {
-    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=en_US&gl=US";
+  public function parseApplication($packageName,$lang='en_US',$loc='US') {
+    $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=$lang&gl=$loc";
     if ( ! $this->input = @file_get_contents($link) ) {
       return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
     }
@@ -94,14 +36,10 @@ class GooglePlay {
     preg_match('/itemprop="genre" href="\/store\/apps\/category\/(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a><\/span>/i', $this->input, $category);
     if(isset($category["id"], $category["content"])) {
       $values["category"]=trim(strip_tags($category["content"]));
-      $isGame=false;
-      foreach($this->categories["game"] as $game) {
-        if(strtolower($values["category"]) == strtolower($game)) {
-          $isGame=true;
-          break;
-        }
-      }
-      $values["type"]=$isGame ? "game" : "app";
+      $catId=trim(strip_tags($category["id"]));
+      if($catId=='GAME' || substr($catId,0,5)=='GAME_') $values["type"]="game";
+      elseif($catId=='FAMILY' || substr($catId,0,7)=='FAMILY?') $values["type"]="family";
+      else $values["type"]="app";
     } else {
       $values["category"]=null;
       $values["type"]=null;
@@ -130,15 +68,21 @@ class GooglePlay {
       $values["images"]=null;
     }
 
-    $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-    $values["versionName"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-    $values["minimumSDKVersion"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-    $values["installs"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Installs<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-    $values["age"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Content Rating<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb"><div>(?<content>.*?)<\/div>/i'));
+    if (substr(strtolower($lang),0,2)=='en') {
+      $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
+      $values["versionName"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
+      $values["minimumSDKVersion"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
+      $values["installs"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Installs<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
+      $values["age"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Content Rating<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb"><div>(?<content>.*?)<\/div>/i'));
+      $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i');
+    } else {
+      $envals = $this->parseApplication($packageName);
+      foreach(["lastUpdated","versionName","minimumSDKVersion","installs","age","size"] as $val) $values[$val]=$envals[$val];
+    }
+
     $values["rating"] = $this->getRegVal('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i');
     $values["votes"] = $this->getRegVal('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
-    $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i');
 
     if($this->debug) {
       print_r($values);
@@ -166,7 +110,7 @@ class GooglePlay {
     return $values;
   }
 
-  public function parsePerms($packageName) {
+  public function parsePerms($packageName,$lang='en') {
     $opts = ['http' => array(
       'method'  => 'POST',
       'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
@@ -176,7 +120,7 @@ class GooglePlay {
       )
     ];
     $context  = stream_context_create($opts);
-    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl=en&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
+    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl='.$lang.'&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i",$http_response_header[0],$match);
       $response_code = $match[1];
       switch ($response_code) {
@@ -194,10 +138,20 @@ class GooglePlay {
 
     $perms = $perms_unique = [];
     $json = preg_replace('!.*?(\[.+?\])\s*\d.*!ims','$1',$proto);
-    $arr = json_decode($json)[0][2];
-    foreach (json_decode($arr)[0] as $group) { // 0: group name, 1: group icon, 2: perms, 3: group_id
+    $arr = json_decode(json_decode($json)[0][2]);
+    if (!empty($arr[0])) foreach ($arr[0] as $group) { // 0: group name, 1: group icon, 2: perms, 3: group_id
+      if (empty($group)) continue;
       $perms[$group[3][0]] = ['group_name'=>$group[0], 'perms'=>$group[2]];
       foreach($group[2] as $perm) $perms_unique[] = $perm[1];
+    }
+    if (!empty($arr[1])) {
+      $perms['misc'] = ['group_name'=>$arr[1][0][0], 'perms'=>$arr[1][0][2]];
+      foreach($arr[1][0][2] as $perm) $perms_unique[] = $perm[1];
+    }
+    if (!empty($arr[2])) {
+      if (array_key_exists('misc',$perms)) $perms['misc']['perms'] = array_merge($perms['misc']['perms'],$arr[2]);
+      else $perms['misc'] = ['group_name'=>$arr[1][0][0], 'perms'=>$arr[2]];
+      foreach($arr[2] as $perm) $perms_unique[] = $perm[1];
     }
 
     return ['success'=>1,'grouped'=>$perms,'perms'=>array_unique($perms_unique)];

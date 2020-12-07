@@ -223,6 +223,11 @@ The `grouped` keys are the IDs given to the permission groups by Google. The emp
 
 For results on failure, please see above.
 
+### Obtaining language-specific content
+You want descriptions in your own language? The `parseApplication()` method accepts two optional parameters: your language, and your location (eg for currency). Both should be according to [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes), e.g. `en` for English, `de` for German, `fr` for French. The method `parsePerms()` also expects a single language parameter, again using ISO 639-1 specifications.
+
+Note that due to technical limitation, not everything is translated.
+
 
 ### TODO
 
