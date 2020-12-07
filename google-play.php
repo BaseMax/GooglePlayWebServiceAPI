@@ -143,6 +143,10 @@ class GooglePlay {
       $perms[$group[3][0]] = ['group_name'=>$group[0], 'perms'=>$group[2]];
       foreach($group[2] as $perm) $perms_unique[] = $perm[1];
     }
+    if (!empty($misc = json_decode($arr)[1])) {
+      $perms['misc'] = ['group_name'=>$misc[0][0], 'perms'=>$misc[0][2]];
+      foreach($misc[0][2] as $perm) $perms_unique[] = $perm[1];
+    }
 
     return ['success'=>1,'grouped'=>$perms,'perms'=>array_unique($perms_unique)];
   }
