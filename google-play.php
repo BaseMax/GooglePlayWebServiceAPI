@@ -1,14 +1,14 @@
 <?php
-/**
-*
-* @Name : GooglePlayWebServiceAPI/google-play.php
-* @Version : 0.3
-* @Programmer : Max & Izzy
-* @Date : 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06
-* @Released under : https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
-* @Repository : https://github.com/BaseMax/GooglePlayWebServiceAPI
-*
-**/
+/** Crawl information of a specific application in the Google Play Store
+ * @class     GooglePlay
+ * @version   0.3
+ * @author    Max & Izzy
+ * @copyright MIT https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
+ * @log       2020-10-19 first release
+ * @log       2020-12-07 recent version
+ * @brief     releases: 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06
+ * @webpage   repository https://github.com/BaseMax/GooglePlayWebServiceAPI
+ **/
 class GooglePlay {
   private $debug = false;   // toggle debug output
   private $input = '';      // content retrieved from remote
