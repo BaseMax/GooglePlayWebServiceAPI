@@ -12,13 +12,32 @@
 class GooglePlay {
   private $debug=false;
 
+  /** Parse a given RegEx and return the match marked by '(?<content>)'
+   * @method protected getRegVal
+   * @param string regEx    regular expression to parse
+   * @return string result  match when found, null otherwise
+   */
   protected function getRegVal($regEx) {
     preg_match($regEx, $this->input, $res);
     if(isset($res["content"])) return trim($res["content"]);
     else return null;
   }
 
-  public function parseApplication($packageName,$lang='en_US',$loc='US') {
+  /** Obtain details on a given app
+   * @method public parseApplication
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
+   * @param optional string loc         locale, mainly for currency. Again two-letter, but uppercase
+   * @return         array              details on the app on success, details on the error otherwise
+   * @verbatim
+   *  On error, the array contains 2 keys: success=0 and message=(tring with reason)
+   *  Success is signaled by success=1, and details are given via the keys
+   *  packageName, name, developer, category, type (game, app, family), description,
+   *  icon, images (array of screenshot URLs), updated, version, require (min Android version),
+   *  install (number of installs), age, rating (float), votes, price, size
+   *  if not explicitly specified otherwise, values are strings
+   */
+  public function parseApplication($packageName, $lang='en_US', $loc='US') {
     $link="https://play.google.com/store/apps/details?id=".$packageName."&hl=$lang&gl=$loc";
     if ( ! $this->input = @file_get_contents($link) ) {
       return ['success'=>0,'message'=>'Google returned: '.$http_response_header[0]];
@@ -91,6 +110,11 @@ class GooglePlay {
     return $values;
   }
 
+  /** Parse page specified by URL for playstore links and extract package names
+   * @method public parse
+   * @param optional string link    link to parse; if empty or not specified, defaults to 'https://play.google.com/apps'
+   * @return         array          array of package names
+   */
   public function parse($link=null) {
     if($link == "" || $link == null) {
       $link="https://play.google.com/apps";
@@ -110,7 +134,20 @@ class GooglePlay {
     return $values;
   }
 
-  public function parsePerms($packageName,$lang='en') {
+  /** Obtain permissions for a given app
+   * @method parsePerms
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
+   * @return         array              permission on success, details on the error otherwise
+   * @verbatim
+   *  On error, the array contains 2 keys: success=0 and message=(tring with reason)
+   *  Success is signaled by success=1, and details are given via the keys
+   *  * perms   : array[0..n] of permissions as displayed on play.google.com (i.e. the permission descriptions); unique, no grouping.
+   *  * grouped : array of permission groups as displayed on play.google.com. Keys are the group ids as defined there.
+   *              keys in each group array are group_name (translated name of the permission group) and perms (array[0..n])
+   *              These perms have numeric keys (0 and 1). 0 seems always to be empty, 1 holds the permission description.
+   */
+  public function parsePerms($packageName, $lang='en') {
     $opts = ['http' => array(
       'method'  => 'POST',
       'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
@@ -157,15 +194,32 @@ class GooglePlay {
     return ['success'=>1,'grouped'=>$perms,'perms'=>array_unique($perms_unique)];
   }
 
+  /** Parse Play Store page for a given category and return package names
+   *  use this::parseCategories to obtain a list of available categories
+   * @method public parseCategory
+   * @param string category     name of the category to parse
+   * @return array              array of package names
+   */
   public function parseCategory($category) {
     $link="https://play.google.com/store/apps/category/".$category;
     return $this->parse($link);
   }
 
+  /** Obtain list of available categories
+   * @method public parseCategories
+   * @return array  array[0..n] of category names to be used with this::parseCategory
+   */
   public function parseCategories() {
-    return array_merge($this->categories["game"], $this->categories["app"]);
+    $input = file_get_contents('https://play.google.com/store/apps/details?id=com.google.android.gm&hl=en&gl=US');
+    preg_match_all('!href="/store/apps/category/([^"]+)"[^>]*>([^<]+)!i',$input,$cats);
+    return array_unique($cats[1]);
   }
 
+  /** Search for apps by a given string
+   * @method public parseSearch
+   * @param string query    string to search for
+   * @return array          array of package names
+   */
   public function parseSearch($query) {
     $link="https://play.google.com/store/search?q=".$query."&c=apps";
     return $this->parse($link);
