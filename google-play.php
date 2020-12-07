@@ -53,7 +53,8 @@ class GooglePlay {
    *  Success is signaled by success=1, and details are given via the keys
    *  packageName, name, developer, category, type (game, app, family), description,
    *  icon, images (array of screenshot URLs), updated, version, require (min Android version),
-   *  install (number of installs), age, rating (float), votes, price, size
+   *  install (number of installs), age, rating (float), votes, price, size,
+   *  ads (has ads: 0|1), iap (in-app-payment used: 0|1)
    *  if not explicitly specified otherwise, values are strings
    */
   public function parseApplication($packageName, $lang='en_US', $loc='US') {
@@ -119,6 +120,10 @@ class GooglePlay {
     $values["rating"] = $this->getRegVal('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i');
     $values["votes"] = $this->getRegVal('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
+    $test = $this->getRegVal('/<div class="bSIuKf">(?<content>[^<]+)<div/i'); // <div class="bSIuKf">Contains Ads<div
+    (empty($test)) ? $values["ads"] = 0 : $values["ads"] = 1;
+    $test = $this->getRegVal('/<div class="aEKMHc">&middot;<\/div>(?<content>[^<]+)</i'); // <div class="aEKMHc">&middot;</div>Offers in-app purchases</div>
+    (empty($test)) ? $values["iap"] = 0 : $values["iap"] = 1;
 
     $limit = 3;
     while ( empty($values["summary"]) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
