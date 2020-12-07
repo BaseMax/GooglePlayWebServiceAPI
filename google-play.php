@@ -10,7 +10,9 @@
 *
 **/
 class GooglePlay {
-  private $debug=false;
+  private $debug = false;   // toggle debug output
+  private $input = '';      // content retrieved from remote
+  private $lastError = '';
 
   /** Parse a given RegEx and return the match marked by '(?<content>)'
    * @method protected getRegVal
@@ -21,6 +23,23 @@ class GooglePlay {
     preg_match($regEx, $this->input, $res);
     if (isset($res["content"])) return trim($res["content"]);
     else return null;
+  }
+
+  /** Fetch app page from Google Play
+   * @method protected getApplicationPage
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
+   * @param optional string loc         locale, mainly for currency. Again two-letter, but uppercase
+   * @return         bool   success
+   */
+  protected function getApplicationPage($packageName, $lang='en_US', $loc='US') {
+    $link = "https://play.google.com/store/apps/details?id=" . $packageName . "&hl=$lang&gl=$loc";
+    if ( ! $this->input = @file_get_contents($link) ) {
+      $this->lastError = $http_response_header[0];
+      return false;
+    } else {
+      return true;
+    }
   }
 
   /** Obtain details on a given app
@@ -38,9 +57,8 @@ class GooglePlay {
    *  if not explicitly specified otherwise, values are strings
    */
   public function parseApplication($packageName, $lang='en_US', $loc='US') {
-    $link = "https://play.google.com/store/apps/details?id=" . $packageName . "&hl=$lang&gl=$loc";
-    if ( ! $this->input = @file_get_contents($link) ) {
-      return ['success'=>0,'message'=>'Google returned: ' . $http_response_header[0]];
+    if ( ! $this->getApplicationPage($packageName, $lang, $loc) ) {
+      return ['success'=>0,'message'=>$this->lastError];
     }
     $values = [];
     $values["packageName"] = $packageName;
@@ -64,8 +82,7 @@ class GooglePlay {
       $values["type"] = null;
     }
 
-    $proto = json_decode($this->getRegVal('/data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims'));
-    $values["summary"] = $proto[0][10][1][1];
+    $values["summary"] = '';
     $values["description"] = $this->getRegVal('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i');
     $values["icon"] = $this->getRegVal('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i');
     $values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
@@ -102,6 +119,18 @@ class GooglePlay {
     $values["rating"] = $this->getRegVal('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i');
     $values["votes"] = $this->getRegVal('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
+
+    $limit = 3;
+    while ( empty($values["summary"]) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
+      $proto = json_decode($this->getRegVal('/data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims'));
+      if ( empty($proto[0][10]) ) {
+        --$limit;
+       $this->getApplicationPage($packageName, $lang, $loc);
+      } else {
+        $values["summary"] = $proto[0][10][1][1];
+        break;
+      }
+    }
 
     if ($this->debug) {
       print_r($values);
