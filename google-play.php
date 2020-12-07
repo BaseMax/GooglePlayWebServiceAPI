@@ -11,64 +11,6 @@
 **/
 class GooglePlay {
   private $debug=false;
-  private $categories=[
-    "app"=>[
-      "Art & Design",
-      "Augmented Reality",
-      "Auto & Vehicles",
-      "Beauty",
-      "Books & Reference",
-      "Business",
-      "Comics",
-      "Communication",
-      "Dating",
-      "Daydream",
-      "Education",
-      "Entertainment",
-      "Events",
-      "Finance",
-      "Food & Drink",
-      "Health & Fitness",
-      "House & Home",
-      "Libraries & Demo",
-      "Lifestyle",
-      "Maps & Navigation",
-      "Medical",
-      "Music & Audio",
-      "News & Magazines",
-      "Parenting",
-      "Personalization",
-      "Photography",
-      "Productivity",
-      "Shopping",
-      "Social",
-      "Sports",
-      "Tools",
-      "Travel & Local",
-      "Video Players & Editors",
-      "Wear OS by Google",
-      "Weather",
-    ],
-    "game"=>[
-      "Action",
-      "Adventure",
-      "Arcade",
-      "Board",
-      "Card",
-      "Casino",
-      "Casual",
-      "Educational",
-      "Music",
-      "Puzzle",
-      "Racing",
-      "Role Playing",
-      "Simulation",
-      "Sports",
-      "Strategy",
-      "Trivia",
-      "Word",
-    ],
-  ];
 
   protected function getRegVal($regEx) {
     preg_match($regEx, $this->input, $res);
@@ -94,14 +36,10 @@ class GooglePlay {
     preg_match('/itemprop="genre" href="\/store\/apps\/category\/(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a><\/span>/i', $this->input, $category);
     if(isset($category["id"], $category["content"])) {
       $values["category"]=trim(strip_tags($category["content"]));
-      $isGame=false;
-      foreach($this->categories["game"] as $game) {
-        if(strtolower($values["category"]) == strtolower($game)) {
-          $isGame=true;
-          break;
-        }
-      }
-      $values["type"]=$isGame ? "game" : "app";
+      $catId=trim(strip_tags($category["id"]));
+      if($catId=='GAME' || substr($catId,0,5)=='GAME_') $values["type"]="game";
+      elseif($catId=='FAMILY' || substr($catId,0,7)=='FAMILY_') $values["type"]="family";
+      else $values["type"]="app";
     } else {
       $values["category"]=null;
       $values["type"]=null;
