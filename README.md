@@ -137,6 +137,8 @@ Array
     [votes] => 1,820
     [price] => 0
     [size] => Varies with device
+    [ads] => 0
+    [iap] => 0
     [success] => 1
 )
 ```
