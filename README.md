@@ -232,7 +232,6 @@ Note that due to technical limitation, not everything is translated.
 ### TODO
 
 - Unit test
-- Adding more method (search, get application by category etc...)
 
 ---------
 
