@@ -9,7 +9,7 @@ Tiny script to crawl information of a specific application in the Google play/st
 - parseCategory
 - parseCategories
 - parseApplication
-
+- parsePerms
 
 ## Using PHP GooglePlay
 
