@@ -33,45 +33,11 @@ print_r($apps);
 ?>
 ```
 
-### How to action as a crawler and find more applications?
+Read more at [wiki](https://github.com/BaseMax/GooglePlayWebServiceAPI/wiki).
 
-```php
-$alphas = range('A', 'Z');
-foreach($alphas as $alpha) {
-    $apps=$google->parseSearch($alpha);
-    insertApps($apps);
-}
-```
+#### How to action as a crawler and find more applications?
 
-Or:
-```php
-$alphas = range('A', 'Z');
-foreach($alphas as $alpha) {
-    $apps=$google->parseSearch($alpha);
-    insertApps($apps);
-    foreach($alphas as $alpha2) {
-        $apps=$google->parseSearch($alpha.$alpha2);
-        insertApps($apps);
-    }
-}
-```
-
-It's more:
-```php
-$alphas = range('A', 'Z');
-foreach($alphas as $alpha) {
-  $apps=$google->parseSearch($alpha);
-  insertApps($apps);
-  foreach($alphas as $alpha2) {
-    $apps=$google->parseSearch($alpha.$alpha2);
-    insertApps($apps);
-    foreach($alphas as $alpha3) {
-      $apps=$google->parseSearch($alpha.$alpha2.$alpha3);
-      insertApps($apps);
-    }
-  }
-}
-```
+https://github.com/BaseMax/GooglePlayWebServiceAPI/wiki/Search
 
 ### Application Structure
 
