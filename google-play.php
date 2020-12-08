@@ -233,6 +233,26 @@ class GooglePlay {
     return ['success'=>1, 'grouped'=>$perms, 'perms'=>array_unique($perms_unique)];
   }
 
+  /** Obtain list of top apps
+   * @method public parseTopApps
+   * @param string category     name of the category to parse
+   * @return array              array of package names
+   */
+  public function parseTopApps() {
+    $link = "https://play.google.com/store/apps/top";
+    return $this->parse($link);
+  }
+
+  /** Obtain list of newest apps
+   * @method public parseNewApps
+   * @param string category     name of the category to parse
+   * @return array              array of package names
+   */
+  public function parseNewApps() {
+    $link = "https://play.google.com/store/apps/new";
+    return $this->parse($link);
+  }
+
   /** Parse Play Store page for a given category and return package names
    *  use this::parseCategories to obtain a list of available categories
    * @method public parseCategory

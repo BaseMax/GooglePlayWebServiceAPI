@@ -8,6 +8,8 @@ Tiny script to crawl information of a specific application in the Google play/st
 - `parseSearch`: search for apps by given terms
 - `parseSimilar`: search for what Google Play considers apps similar to the one specified
 - `parseOthers`: other apps by the same developer
+- `parseTopApps`: list top-chart apps
+- `parseNewApps`: list latest additions
 - `parseCategory`: list apps from a specified category
 - `parseCategories`: list available categories
 - `parseApplication`: get details for a specific app
