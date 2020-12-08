@@ -255,7 +255,7 @@ class GooglePlay {
    * @return array          array of package names
    */
   public function parseSearch($query) {
-    $link = "https://play.google.com/store/search?q=". $query ."&c=apps";
+    $link = "https://play.google.com/store/search?q=". urlencode($query) ."&c=apps";
     return $this->parse($link);
   }
 }
