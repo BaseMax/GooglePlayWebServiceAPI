@@ -6,6 +6,7 @@ Tiny script to crawl information of a specific application in the Google play/st
 
 - parse
 - parseSearch
+- parseSimilar
 - parseCategory
 - parseCategories
 - parseApplication
@@ -21,8 +22,7 @@ $google = new GooglePlay();
 $app=$google->parseApplication("com.bezapps.flowdiademo");
 print_r($app);
 
-
-$app=$google->parseApplication("com.bezapps.flowdiademo");
+$app=$google->parseSimilar("com.bezapps.flowdiademo");
 print_r($app);
 
 $apps=$google->parseSearch("telegram");

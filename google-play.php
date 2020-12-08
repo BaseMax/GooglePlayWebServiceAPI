@@ -147,13 +147,18 @@ class GooglePlay {
   /** Parse page specified by URL for playstore links and extract package names
    * @method public parse
    * @param optional string link    link to parse; if empty or not specified, defaults to 'https://play.google.com/apps'
+   * @param optional bool   is_url  whether the link passed is an url to fetch-and-parse (true, default) or a string just to parse (false)
    * @return         array          array of package names
    */
-  public function parse($link=null) {
-    if($link == "" || $link == null) {
-      $link = "https://play.google.com/apps";
+  public function parse($link=null, $is_url=true) {
+    if ( $is_url ) {
+      if ($link == "" || $link == null) {
+        $link = "https://play.google.com/apps";
+      }
+      $input = file_get_contents($link);
+    } else {
+      $input = $link;
     }
-    $input = file_get_contents($link);
     preg_match_all('/href="\/store\/apps\/details\?id=(?<ids>[^\"]+)"/i', $input, $ids);
     if ( isset($ids["ids"]) ) {
       $ids = $ids["ids"];
@@ -247,6 +252,20 @@ class GooglePlay {
     $input = file_get_contents('https://play.google.com/store/apps/details?id=com.google.android.gm&hl=en&gl=US');
     preg_match_all('!href="/store/apps/category/([^"]+)"[^>]*>([^<]+)!i', $input, $cats);
     return array_unique($cats[1]);
+  }
+
+  /** Obtain list of similar apps
+   * @method parseSimilar
+   * @param  string packageName package name of the app to find similars for, e.g. 'com.example.app'
+   * @return array              array of package names
+   */
+  public function parseSimilar($packageName) {
+    if ( ! $this->getApplicationPage($packageName) )
+      return ['success'=>0,'message'=>$this->lastError];
+    $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">Similar</h2></a>(?<content>.+?)(<c-wiz jsrenderer="rx5H8d"|</aside>)!ims');
+    if ( empty($input) )
+      return ['success'=>0,'message'=>'no data found'];
+    return $this->parse($input, false);
   }
 
   /** Search for apps by a given string
