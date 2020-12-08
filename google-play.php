@@ -268,6 +268,20 @@ class GooglePlay {
     return $this->parse($input, false);
   }
 
+  /** Obtain list of other apps by same author
+   * @method parseOthers
+   * @param  string packageName package name of the app to find similars for, e.g. 'com.example.app'
+   * @return array              array of package names
+   */
+  public function parseOthers($packageName) {
+    if ( ! $this->getApplicationPage($packageName) )
+      return ['success'=>0,'message'=>$this->lastError];
+    $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">More by [^<]*</h2></a></div><div class="W9yFB">(?<content>.+?)</c-data></c-wiz></div></div></div><script!ims');
+    if ( empty($input) )
+      return ['success'=>0,'message'=>'no data found'];
+    return $this->parse($input, false);
+  }
+
   /** Search for apps by a given string
    * @method public parseSearch
    * @param string query    string to search for
