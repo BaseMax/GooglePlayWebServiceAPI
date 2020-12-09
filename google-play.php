@@ -101,6 +101,10 @@ class GooglePlay {
 
     $values["summary"] = '';
     $values["description"] = $this->getRegVal('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i');
+    if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out
+      if ($this->debug) echo "Original Description:\n" . $values["description"] . "\n\n";
+      $values["description"] = preg_replace('!.*?<div jsname="Igi1ac" style="display:none;">(.+)!ims', '$1', $values["description"]);
+    }
     $values["icon"] = $this->getRegVal('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i');
     $values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
 
