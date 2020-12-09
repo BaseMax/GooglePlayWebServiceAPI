@@ -3,18 +3,20 @@
 Tiny script to crawl information of a specific application in the Google play/store base on PHP.
 
 ## PHP GooglePlay Methods
-
 - `parse`: mostly used internally – but can be used to parse any URL or text for valid Play Store app links and return their packageNames
 - `parseSearch`: search for apps by given terms
 - `parseSimilar`: search for what Google Play considers apps similar to the one specified
+- `parseOthers`: other apps by the same developer
+- `parseTopApps`: list top-chart apps
+- `parseNewApps`: list latest additions
 - `parseCategory`: list apps from a specified category
 - `parseCategories`: list available categories
 - `parseApplication`: get details for a specific app
 - `parsePerms`: retrieve permissions requested by a specific app
-
+- `setDebug`: turn debug mode on or off
+- `getDebug`: check whether debug mode is turned on or off
 
 ## Using PHP GooglePlay
-
 ```php
 <?php
 require "google-play.php";

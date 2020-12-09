@@ -14,6 +14,22 @@ class GooglePlay {
   private $input = '';      // content retrieved from remote
   private $lastError = '';
 
+  /** Turn debug mode on or off
+   * @method public setDebug
+   * @param bool    debug   turn debug mode on (true) or off (false)
+   */
+  public function setDebug($debug) {
+    $this->debug = (bool) $debug;
+  }
+
+  /** Check whether debug mode is enabled
+   * @method public getDebug
+   * @return bool   debug   whether debug mode is turned on (true) or off (false)
+   */
+  public function getDebug() {
+    return $this->debug;
+  }
+
   /** Parse a given RegEx and return the match marked by '(?<content>)'
    * @method protected getRegVal
    * @param string regEx    regular expression to parse
@@ -85,6 +101,10 @@ class GooglePlay {
 
     $values["summary"] = '';
     $values["description"] = $this->getRegVal('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i');
+    if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out
+      if ($this->debug) echo "Original Description:\n" . $values["description"] . "\n\n";
+      $values["description"] = preg_replace('!.*?<div jsname="Igi1ac" style="display:none;">(.+)!ims', '$1', $values["description"]);
+    }
     $values["icon"] = $this->getRegVal('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i');
     $values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
 
@@ -233,6 +253,26 @@ class GooglePlay {
     return ['success'=>1, 'grouped'=>$perms, 'perms'=>array_unique($perms_unique)];
   }
 
+  /** Obtain list of top apps
+   * @method public parseTopApps
+   * @param string category     name of the category to parse
+   * @return array              array of package names
+   */
+  public function parseTopApps() {
+    $link = "https://play.google.com/store/apps/top";
+    return $this->parse($link);
+  }
+
+  /** Obtain list of newest apps
+   * @method public parseNewApps
+   * @param string category     name of the category to parse
+   * @return array              array of package names
+   */
+  public function parseNewApps() {
+    $link = "https://play.google.com/store/apps/new";
+    return $this->parse($link);
+  }
+
   /** Parse Play Store page for a given category and return package names
    *  use this::parseCategories to obtain a list of available categories
    * @method public parseCategory
@@ -263,6 +303,20 @@ class GooglePlay {
     if ( ! $this->getApplicationPage($packageName) )
       return ['success'=>0,'message'=>$this->lastError];
     $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">Similar</h2></a>(?<content>.+?)(<c-wiz jsrenderer="rx5H8d"|</aside>)!ims');
+    if ( empty($input) )
+      return ['success'=>0,'message'=>'no data found'];
+    return $this->parse($input, false);
+  }
+
+  /** Obtain list of other apps by same author
+   * @method parseOthers
+   * @param  string packageName package name of the app to find similars for, e.g. 'com.example.app'
+   * @return array              array of package names
+   */
+  public function parseOthers($packageName) {
+    if ( ! $this->getApplicationPage($packageName) )
+      return ['success'=>0,'message'=>$this->lastError];
+    $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">More by [^<]*</h2></a></div><div class="W9yFB">(?<content>.+?)</c-data></c-wiz></div></div></div><script!ims');
     if ( empty($input) )
       return ['success'=>0,'message'=>'no data found'];
     return $this->parse($input, false);
