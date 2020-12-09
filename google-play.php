@@ -14,6 +14,22 @@ class GooglePlay {
   private $input = '';      // content retrieved from remote
   private $lastError = '';
 
+  /** Turn debug mode on or off
+   * @method public setDebug
+   * @param bool    debug   turn debug mode on (true) or off (false)
+   */
+  public function setDebug($debug) {
+    $this->debug = (bool) $debug;
+  }
+
+  /** Check whether debug mode is enabled
+   * @method public getDebug
+   * @return bool   debug   whether debug mode is turned on (true) or off (false)
+   */
+  public function getDebug() {
+    return $this->debug;
+  }
+
   /** Parse a given RegEx and return the match marked by '(?<content>)'
    * @method protected getRegVal
    * @param string regEx    regular expression to parse
