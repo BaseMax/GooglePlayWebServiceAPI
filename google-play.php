@@ -1,8 +1,8 @@
 <?php
 /** Crawl information of a specific application in the Google Play Store
  * @class     GooglePlay
- * @version   0.3
- * @author    Max & Izzy
+ * @version   1.0.0
+ * @author    Max Base & Izzy
  * @copyright MIT https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
  * @log       2020-10-19 first release
  * @log       2020-12-10 recent version
