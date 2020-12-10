@@ -5,8 +5,8 @@
  * @author    Max & Izzy
  * @copyright MIT https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
  * @log       2020-10-19 first release
- * @log       2020-12-07 recent version
- * @brief     releases: 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06
+ * @log       2020-12-10 recent version
+ * @brief     releases: 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06, 2020-12-07, 2020-12-10
  * @webpage   repository https://github.com/BaseMax/GooglePlayWebServiceAPI
  **/
 class GooglePlay {
@@ -78,6 +78,7 @@ class GooglePlay {
       return ['success'=>0,'message'=>$this->lastError];
     }
     $values = [];
+    $message = '';
     $values["packageName"] = $packageName;
 
     $values["name"] = strip_tags($this->getRegVal('/itemprop="name">(?<content>.*?)<\/h1>/'));
@@ -161,35 +162,7 @@ class GooglePlay {
       print_r($values);
     }
     $values['success'] = 1;
-    return $values;
-  }
-
-  /** Parse page specified by URL for playstore links and extract package names
-   * @method public parse
-   * @param optional string link    link to parse; if empty or not specified, defaults to 'https://play.google.com/apps'
-   * @param optional bool   is_url  whether the link passed is an url to fetch-and-parse (true, default) or a string just to parse (false)
-   * @return         array          array of package names
-   */
-  public function parse($link=null, $is_url=true) {
-    if ( $is_url ) {
-      if ($link == "" || $link == null) {
-        $link = "https://play.google.com/apps";
-      }
-      $input = file_get_contents($link);
-    } else {
-      $input = $link;
-    }
-    preg_match_all('/href="\/store\/apps\/details\?id=(?<ids>[^\"]+)"/i', $input, $ids);
-    if ( isset($ids["ids"]) ) {
-      $ids = $ids["ids"];
-      $ids = array_values(array_unique($ids));
-      $values = $ids;
-    } else {
-      $values = [];
-    }
-    if ($this->debug) {
-      print_r($values);
-    }
+    $values['message'] = $message;
     return $values;
   }
 
@@ -250,7 +223,42 @@ class GooglePlay {
       foreach($arr[2] as $perm) $perms_unique[] = $perm[1];
     }
 
-    return ['success'=>1, 'grouped'=>$perms, 'perms'=>array_unique($perms_unique)];
+    return ['success'=>1, 'message'=>'', 'grouped'=>$perms, 'perms'=>array_unique($perms_unique)];
+  }
+
+  /** Parse page specified by URL for playstore links and extract package names
+   * @method public parse
+   * @param optional string link    link to parse; if empty or not specified, defaults to 'https://play.google.com/apps'
+   * @param optional bool   is_url  whether the link passed is an url to fetch-and-parse (true, default) or a string just to parse (false)
+   * @return         array          array of package names
+   * @brief this mainly is a helper for all methods parsing for app links, like parseTopApps, parseSimilar etc.
+   */
+  public function parse($link=null, $is_url=true) {
+    if ( $is_url ) {
+      if ($link == "" || $link == null) {
+        $link = "https://play.google.com/apps";
+      }
+      if ( ! $input = @file_get_contents($link) ) {
+        $this->lastError = $http_response_header[0];
+        return [];
+      } else {
+        $this->lastError = ''; // reset
+      }
+    } else {
+      $input = $link;
+    }
+    preg_match_all('/href="\/store\/apps\/details\?id=(?<ids>[^\"]+)"/i', $input, $ids);
+    if ( isset($ids["ids"]) ) {
+      $ids = $ids["ids"];
+      $ids = array_values(array_unique($ids));
+      $values = $ids;
+    } else {
+      $values = [];
+    }
+    if ($this->debug) {
+      print_r($values);
+    }
+    return $values;
   }
 
   /** Obtain list of top apps
@@ -260,7 +268,9 @@ class GooglePlay {
    */
   public function parseTopApps() {
     $link = "https://play.google.com/store/apps/top";
-    return $this->parse($link);
+    $data = $this->parse($link);
+    if ( empty($this->lastError) ) return ['success'=>1, 'message'=>'', 'data'=>$data];
+    else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
 
   /** Obtain list of newest apps
@@ -270,7 +280,9 @@ class GooglePlay {
    */
   public function parseNewApps() {
     $link = "https://play.google.com/store/apps/new";
-    return $this->parse($link);
+    $data = $this->parse($link);
+    if ( empty($this->lastError) ) return ['success'=>1, 'message'=>'', 'data'=>$data];
+    else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
 
   /** Parse Play Store page for a given category and return package names
@@ -281,7 +293,9 @@ class GooglePlay {
    */
   public function parseCategory($category) {
     $link = "https://play.google.com/store/apps/category/" . $category;
-    return $this->parse($link);
+    $data = $this->parse($link);
+    if ( empty($this->lastError) ) return ['success'=>1, 'message'=>'', 'data'=>$data];
+    else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
 
   /** Obtain list of available categories
@@ -289,9 +303,10 @@ class GooglePlay {
    * @return array  array[0..n] of category names to be used with this::parseCategory
    */
   public function parseCategories() {
-    $input = file_get_contents('https://play.google.com/store/apps/details?id=com.google.android.gm&hl=en&gl=US');
-    preg_match_all('!href="/store/apps/category/([^"]+)"[^>]*>([^<]+)!i', $input, $cats);
-    return array_unique($cats[1]);
+    if ( ! $this->getApplicationPage('com.google.android.gm','en','US') )
+      return ['success'=>0, 'message'=>$this->lastError, 'data'=>[]];
+    preg_match_all('!href="/store/apps/category/([^"]+)"[^>]*>([^<]+)!i', $this->input, $cats);
+    return ['success'=>1, 'message'=>'', 'data'=>array_unique($cats[1])];
   }
 
   /** Obtain list of similar apps
@@ -301,11 +316,11 @@ class GooglePlay {
    */
   public function parseSimilar($packageName) {
     if ( ! $this->getApplicationPage($packageName) )
-      return ['success'=>0,'message'=>$this->lastError];
+      return ['success'=>0, 'message'=>$this->lastError, 'data'=>[]];
     $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">Similar</h2></a>(?<content>.+?)(<c-wiz jsrenderer="rx5H8d"|</aside>)!ims');
     if ( empty($input) )
-      return ['success'=>0,'message'=>'no data found'];
-    return $this->parse($input, false);
+      return ['success'=>1, 'message'=>'no data found', 'data'=>[]];
+    return ['success'=>1, 'message'=>'', 'data'=>$this->parse($input, false)];
   }
 
   /** Obtain list of other apps by same author
@@ -315,11 +330,11 @@ class GooglePlay {
    */
   public function parseOthers($packageName) {
     if ( ! $this->getApplicationPage($packageName) )
-      return ['success'=>0,'message'=>$this->lastError];
+      return ['success'=>0, 'message'=>$this->lastError, 'data'=>[]];
     $input = $this->getRegVal('!<h2 class="sv0AUd bs3Xnd">More by [^<]*</h2></a></div><div class="W9yFB">(?<content>.+?)</c-data></c-wiz></div></div></div><script!ims');
     if ( empty($input) )
-      return ['success'=>0,'message'=>'no data found'];
-    return $this->parse($input, false);
+      return ['success'=>1, 'message'=>'no data found', 'data'=>[]];
+    return ['success'=>1, 'message'=>'', 'data'=>$this->parse($input, false)];
   }
 
   /** Search for apps by a given string
@@ -329,6 +344,11 @@ class GooglePlay {
    */
   public function parseSearch($query) {
     $link = "https://play.google.com/store/search?q=". urlencode($query) ."&c=apps";
-    return $this->parse($link);
+    $data = $this->parse($link);
+    if ( empty($this->lastError) ) {
+      if ( empty($data) ) return ['success'=>1, 'message'=>'no data found', 'data'=>$data];
+      else return ['success'=>1, 'message'=>'', 'data'=>$data];
+    }
+    else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
 }
