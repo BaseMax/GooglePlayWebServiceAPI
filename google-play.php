@@ -125,6 +125,11 @@ class GooglePlay {
     } else {
       $values["images"] = null;
     }
+    
+    // remove width & height
+    // remove -rw to get png type
+    $values["icon"] = preg_replace('/(\=[a-z0-9-]+)$/i', '=s280', $values["icon"]);
+    $values["images"]  = preg_replace('/(\=[a-z0-9-]+)$/i', '', $values["images"]);
 
     if ( substr(strtolower($lang),0,2)=='en' ) {
       $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
