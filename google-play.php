@@ -198,11 +198,11 @@ class GooglePlay {
         case "400" : // echo "! No XHR for '$pkg'\n";
         case "404" : // app no longer on play
         default:
-          return ['success'=>0, 'message'=>$http_response_header[0]];
+          return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>$http_response_header[0]];
           break;
       }
     } else { // network error (e.g. "failed to open stream: Connection timed out")
-      return ['success'=>0, 'message'=>'network error'];
+      return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>'network error'];
     }
 
     $perms = $perms_unique = [];
