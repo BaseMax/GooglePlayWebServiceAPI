@@ -86,7 +86,7 @@ class GooglePlay {
       return ['success'=>0, 'message'=>'No app data found'];
     }
 
-    $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/developer\?id=(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a>/i'));
+    $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/developer\?id=(?<id>[^\"]+)"([^\>]*|)>(\<span[^\>]*>)*(?<content>[^\<]+)(<\/span>|)<\/a>/i'));
 
     preg_match('/itemprop="genre" href="\/store\/apps\/category\/(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a><\/span>/i', $this->input, $category);
     if (isset($category["id"], $category["content"])) {
@@ -100,22 +100,23 @@ class GooglePlay {
       $values["type"] = null;
     }
 
-    $values["summary"] = '';
-    $values["description"] = $this->getRegVal('/itemprop="description"><span jsslot><div jsname="sngebd">(?<content>.*?)<\/div><\/span><div/i');
-    if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out
+    $values["summary"] = strip_tags($this->getRegVal('/property="og:description" content="(?<content>[^\"]+)/i'));
+    $values["description"] = $this->getRegVal('/itemprop="description"[^\>]*><div class="bARER">(?<content>.*?)<\/div><div class=/i');
+    if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out **TODO:** check if this still applies (2022-05-27)
       if ($this->debug) echo "Original Description:\n" . $values["description"] . "\n\n";
       $values["description"] = preg_replace('!.*?<div jsname="Igi1ac" style="display:none;">(.+)!ims', '$1', $values["description"]);
     }
-    $values["icon"] = $this->getRegVal('/<div class="hkhL9e"><div class="xSyT2c"><img src="(?<content>[^\"]+)"/i');
-    $values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
+    //$values["icon"] = $this->getRegVal('/<div class="JU1wdd"><div class="l8YSdd"><img src="(?<content>[^\"]+)"/i');
+    $values["icon"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<meta name="twitter:image" content="(?<content>[^\"]+)"/i'));
+    $values["featureGraphic"] = preg_replace('!(.*)=w\d+.*!i', '$1', $this->getRegVal('/<img class="oiEt0d" src="(?<content>[^\"]+)"/i'));
 
-    preg_match('/<div class="Rx5dXb"([^\>]+|)>(?<content>.*?)<c-data/i', $this->input, $image);
+    preg_match('/<div class="aoJE7e qwPPwf"([^\>]+|)>(?<content>.*?)<c-data/i', $this->input, $image);
     if ( isset($image["content"]) ) {
       preg_match_all('/<img data-src="(?<content>[^\"]+)"/i', $image["content"], $images);
       if ( isset($images["content"]) && !empty($images["content"]) ) {
         $values["images"] = $images["content"];
       } else {
-        preg_match_all('/<img src="[^"]*" srcset="(?<content>[^\s"]+)/i', $image["content"], $images);
+        preg_match_all('/<img (class="[^\"]+")*src="[^"]*" srcset="(?<content>[^\s"]+)/i', $image["content"], $images);
         if ( isset($images["content"]) ) {
           $values["images"] = $images["content"];
         } else {
@@ -127,19 +128,20 @@ class GooglePlay {
     }
 
     if ( substr(strtolower($lang),0,2)=='en' ) {
-      $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Updated<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-      $values["versionName"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-      $values["minimumSDKVersion"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-      $values["installs"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Installs<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i'));
-      $values["age"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Content Rating<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb"><div>(?<content>.*?)<\/div>/i'));
-      $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i');
+      $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="lXlx5">Updated on<\/div><div class="xg1aie">(?<content>.*?)<\/div><\/div>/i'));
+      $values["versionName"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i')); // 2022-05-27: gone
+      $values["minimumSDKVersion"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i')); // 2022-05-27: gone
+      $values["installs"] = strip_tags($this->getRegVal('/<div class="ClM7O">(?<content>[^\>]*?)<\/div><div class="g1rdde">Downloads<\/div>/i'));
+      $values["age"] = strip_tags($this->getRegVal('/<span itemprop="contentRating"><span>(?<content>.*?)<\/span><\/span>/i'));
+      $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i'); // 2022-05-27: gone
+      $values["video"] = $this->getRegVal('/<button aria-label="Play trailer".*?data-trailer-url="(?<content>[^\"]+?)"/i');
     } else {
       $envals = $this->parseApplication($packageName);
       foreach(["lastUpdated","versionName","minimumSDKVersion","installs","age","size"] as $val) $values[$val] = $envals[$val];
     }
 
-    $values["rating"] = $this->getRegVal('/<div class="BHMmbe"[^>]*>(?<content>[^<]+)<\/div>/i');
-    $values["votes"] = $this->getRegVal('/<span class="AYi5wd TBRnV"><span[^>]*>(?<content>[^>]+)<\/span>/i');
+    $values["rating"] = $this->getRegVal('/<div itemprop="starRating"><div class="TT9eCd"[^\>]*>(?<content>[^<]+)(<i class="[^\>]*>star<\/i>)*<\/div>/i');
+    $values["votes"] = $this->getRegVal('/<div class="g1rdde">(?<content>[^>]+) reviews<\/div>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
     $test = $this->getRegVal('/<div class="bSIuKf">(?<content>[^<]+)<div/i'); // <div class="bSIuKf">Contains Ads<div
     (empty($test)) ? $values["ads"] = 0 : $values["ads"] = 1;
