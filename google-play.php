@@ -135,6 +135,11 @@ class GooglePlay {
       $values["age"] = strip_tags($this->getRegVal('/<span itemprop="contentRating"><span>(?<content>.*?)<\/span><\/span>/i'));
       $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i'); // 2022-05-27: gone
       $values["video"] = $this->getRegVal('/<button aria-label="Play trailer".*?data-trailer-url="(?<content>[^\"]+?)"/i');
+      $values["whatsnew"] = $this->getRegVal('/<div class="SfzRHd"><div itemprop="description">(?<content>.*?)<\/div><\/div><\/section>/i');
+      $test = $this->getRegVal('/<span class="UIuSk">(?<content>\s*Contains ads\s*)<\/span>/i'); // <span class="UIuSk">Contains ads</span>
+      (empty($test)) ? $values["ads"] = 0 : $values["ads"] = 1;
+      $test = $this->getRegVal('/<span class="UIuSk">(?<content>\s*In-app purchases\s*)<\/span>/i'); // <span class="UIuSk">In-app purchases</span>
+      (empty($test)) ? $values["iap"] = 0 : $values["iap"] = 1;
     } else {
       $envals = $this->parseApplication($packageName);
       foreach(["lastUpdated","versionName","minimumSDKVersion","installs","age","size"] as $val) $values[$val] = $envals[$val];
@@ -143,13 +148,9 @@ class GooglePlay {
     $values["rating"] = $this->getRegVal('/<div itemprop="starRating"><div class="TT9eCd"[^\>]*>(?<content>[^<]+)(<i class="[^\>]*>star<\/i>)*<\/div>/i');
     $values["votes"] = $this->getRegVal('/<div class="g1rdde">(?<content>[^>]+) reviews<\/div>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
-    $test = $this->getRegVal('/<div class="bSIuKf">(?<content>[^<]+)<div/i'); // <div class="bSIuKf">Contains Ads<div
-    (empty($test)) ? $values["ads"] = 0 : $values["ads"] = 1;
-    $test = $this->getRegVal('/<div class="aEKMHc">&middot;<\/div>(?<content>[^<]+)</i'); // <div class="aEKMHc">&middot;</div>Offers in-app purchases</div>
-    (empty($test)) ? $values["iap"] = 0 : $values["iap"] = 1;
 
     $limit = 3;
-    while ( empty($values["summary"]) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
+    while ( empty($values["summary"]) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call -- no longer showing up on retries either with design change in 2022-05?
       $proto = json_decode($this->getRegVal('/data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims'));
       if ( empty($proto[0][10]) ) {
         --$limit;
