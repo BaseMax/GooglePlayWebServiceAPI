@@ -86,9 +86,10 @@ class GooglePlay {
       return ['success'=>0, 'message'=>'No app data found'];
     }
 
-    $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/developer\?id=(?<id>[^\"]+)"([^\>]*|)>(\<span[^\>]*>)*(?<content>[^\<]+)(<\/span>|)<\/a>/i'));
+    $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/dev(eloper)*\?id=(?<id>[^\"]+)"([^\>]*|)>(\<span[^\>]*>)*(?<content>[^\<]+)(<\/span>|)<\/a>/i'));
 
-    preg_match('/itemprop="genre" href="\/store\/apps\/category\/(?<id>[^\"]+)"([^\>]+|)>(?<content>[^\<]+)<\/a><\/span>/i', $this->input, $category);
+    preg_match('/<a class="WpHeLc VfPpkd-mRLv6 VfPpkd-RLmnJb" href="\/store\/apps\/category\/(?<id>[^\"]+)" aria-label="(?<content>[^\"]+)"/i', $this->input, $category);
+    if ( empty($category) ) preg_match('/href="\/store\/apps\/category\/(?<id>[^\"]+)" data-disable-idom="true" data-skip-focus-on-activate="false" jsshadow><span class="VfPpkd-N5Lhkf" jsname="bN97Pc"><span class="VfPpkd-jY41G-V67aGc" jsname="V67aGc">(?<content>[^\<]+)<\/span>/i', $this->input, $category);
     if (isset($category["id"], $category["content"])) {
       $values["category"] = trim(strip_tags($category["content"]));
       $catId = trim(strip_tags($category["id"]));
