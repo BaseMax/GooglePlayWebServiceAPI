@@ -1,12 +1,12 @@
 <?php
 /** Crawl information of a specific application in the Google Play Store
  * @class     GooglePlay
- * @version   1.0.0
+ * @version   1.0.1
  * @author    Max Base & Izzy
  * @copyright MIT https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
  * @log       2020-10-19 first release
- * @log       2020-12-10 recent version
- * @brief     releases: 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06, 2020-12-07, 2020-12-10
+ * @log       2022-05-28 recent version
+ * @brief     releases: 2020-10-19, 2020-10-25, 2020-10-29, 2020-10-30, 2020-12-05, 2020-12-06, 2020-12-07, 2020-12-10, 2022-05-28
  * @webpage   repository https://github.com/BaseMax/GooglePlayWebServiceAPI
  **/
 class GooglePlay {
