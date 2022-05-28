@@ -58,6 +58,57 @@ class GooglePlay {
     }
   }
 
+  /** Obtain app version details
+   * @method public parseVersion
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @return         array              details on the app on success, details on the error otherwise
+   */
+  public function parseVersion($packageName) {
+    $lang='en';
+    $version = sprintf("[IoIWBc,'[[null,[%s,7]]]',null,%s]", $packageName, $packageName);
+    $value = sprintf("[[%s]]", $version);
+    $freq = urlencode($value);
+
+    $opts = ['http' => array(
+      'method'  => 'POST',
+      'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
+                  ."\r\n".'Referer: https://play.google.com/',
+      'content' => "f.req=$freq",
+      'ignore_errors' => TRUE
+      )
+    ];
+    $context  = stream_context_create($opts);
+    if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?hl=' . $lang, false, $context) ) { // proto_buf/JSON data
+      preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
+      $response_code = $match[1];
+      switch ($response_code) {
+        case "200" : // HTTP/1.0 200 OK
+          break;
+        case "400" : // echo "! No XHR for '$pkg'\n";
+        case "404" : // app no longer on play
+        default:
+          return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>$http_response_header[0]];
+          break;
+      }
+    } else { // network error (e.g. "failed to open stream: Connection timed out")
+      return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>'network error'];
+    }
+
+    $proto = preg_replace('!^\)]}.*?\n!','',$proto);
+    $verInfo = json_decode( json_decode($proto)[0][2] );
+    $values = [];
+    $message = '';
+
+    $values["packageName"] = $packageName;
+    $values["versionName"] = $verInfo[1];
+    $values["minimumSDKVersion"] = $verInfo[2];
+    $values["size"] = $verInfo[0];
+    $values['success'] = 1;
+    $values['message'] = $message;
+
+    return $values;
+  }
+
   /** Obtain details on a given app
    * @method public parseApplication
    * @param          string packageName identifier for the app, e.g. 'com.example.app'
@@ -79,6 +130,8 @@ class GooglePlay {
     }
     $values = [];
     $message = '';
+    $verInfo = $this->parseVersion($packageName);
+    if ( $verInfo['success'] != 1 ) $verInfo = ['size'=>0, 'minimumSDKVersion'=>0, 'versionName'=>''];
     $values["packageName"] = $packageName;
 
     $values["name"] = strip_tags($this->getRegVal('/itemprop="name">(?<content>.*?)<\/h1>/'));
@@ -130,11 +183,11 @@ class GooglePlay {
 
     if ( substr(strtolower($lang),0,2)=='en' ) {
       $values["lastUpdated"] = strip_tags($this->getRegVal('/<div class="lXlx5">Updated on<\/div><div class="xg1aie">(?<content>.*?)<\/div><\/div>/i'));
-      $values["versionName"] = strip_tags($this->getRegVal('/<div class="BgcNfc">Current Version<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i')); // 2022-05-27: gone
-      $values["minimumSDKVersion"] = strip_tags($this->getRegVal('/<div class="hAyfc"><div class="BgcNfc">Requires Android<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>.*?)<\/span><\/div><\/span><\/div>/i')); // 2022-05-27: gone
+      $values["versionName"] = $verInfo['versionName'];
+      $values["minimumSDKVersion"] = $verInfo['minimumSDKVersion'];
       $values["installs"] = strip_tags($this->getRegVal('/<div class="ClM7O">(?<content>[^\>]*?)<\/div><div class="g1rdde">Downloads<\/div>/i'));
       $values["age"] = strip_tags($this->getRegVal('/<span itemprop="contentRating"><span>(?<content>.*?)<\/span><\/span>/i'));
-      $values["size"] = $this->getRegVal('/<div class="BgcNfc">Size<\/div><span class="htlgb"><div class="IQ1z0d"><span class="htlgb">(?<content>[^<]+)<\/span>/i'); // 2022-05-27: gone
+      $values["size"] = $verInfo['size'];
       $values["video"] = $this->getRegVal('/<button aria-label="Play trailer".*?data-trailer-url="(?<content>[^\"]+?)"/i');
       $values["whatsnew"] = $this->getRegVal('/<div class="SfzRHd"><div itemprop="description">(?<content>.*?)<\/div><\/div><\/section>/i');
       $test = $this->getRegVal('/<span class="UIuSk">(?<content>\s*Contains ads\s*)<\/span>/i'); // <span class="UIuSk">Contains ads</span>
