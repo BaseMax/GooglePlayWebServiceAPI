@@ -408,4 +408,71 @@ class GooglePlay {
     }
     else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
+
+  /* Obtain Data Safety details for a given app
+   * @method public parsePrivacy
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
+   * @return         array              privacy details on the app on success, details on the error otherwise
+   */
+  public function parsePrivacy($packageName, $lang='en') {
+    $link = sprintf('https://play.google.com/store/apps/datasafety?id=%s&hl=%s', $packageName, $lang);
+    if ( $this->input = @file_get_contents($link) ) {
+      preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
+      $response_code = $match[1];
+      switch ($response_code) {
+        case "200" : // HTTP/1.0 200 OK
+          break;
+        case "400" : // echo "! No XHR for '$pkg'\n";
+        case "404" : // app no longer on play
+        default:
+          $this->lastError = $http_response_header[0];
+          return ['success'=>0, 'values'=>[], 'message'=>$http_response_header[0]];
+          break;
+      }
+    } else { // network error (e.g. "failed to open stream: Connection timed out")
+      $this->lastError = 'network error';
+      return ['success'=>0, 'values'=>[], 'message'=>'network error'];
+    }
+
+    $doc = new DOMDocument();
+    @$doc->loadHTML($this->input);
+    $xp  = new DOMXPath($doc);
+
+    $nlh = $xp->query("//div[@class='Mf2Txd']/h2"); // node list of headers
+    if ($this->debug) echo "Privacy sections: ".$nlh->length."\n";
+
+    $sections = [];
+    foreach($nlh as $section) {
+      $sname = trim ($section->nodeValue);
+      $node = $section->nextSibling;
+      $desc = ''; $extras = [];
+      switch ( $node->getAttribute('class') ) {
+        case 'ivTO9c': $desc = $node->firstChild->textContent; break;
+        case 'XgPdwe':
+          $desc = 'see extras';
+          foreach ($node->childNodes as $child) {
+            $ex = $child->firstChild->nextSibling->firstChild; // the extra detail's header
+            $eh = $ex->nodeValue;
+            $ex = $ex->nextSibling; // the extra's details
+            $ed = $ex->nodeValue;
+            $extras[] = ['name'=>$eh, 'desc'=>$ed];
+          }
+          break;
+        default: if ($this->debug) echo "Got unknown class '". strtolower($node->getAttribute('class'))."' for section description\n"; break;
+      }
+      $node = $node->nextSibling;
+      if ( empty($extras) ) {
+        foreach ($node->childNodes as $child) {
+          $ex = $child->firstChild->firstChild->firstChild->firstChild->firstChild->nextSibling->firstChild; // the extra detail's header
+          $eh = $ex->nodeValue;
+          $ex = $ex->nextSibling; // the extra's details
+          $ed = $ex->nodeValue;
+          $extras[] = ['name'=>$eh, 'desc'=>$ed];
+        }
+      }
+      $sections[] = ['name'=>$sname, 'desc'=>$desc, 'extras' => $extras];
+    }
+    return ['success'=>1, 'values'=>$sections, 'message'=>''];
+  }
 }
