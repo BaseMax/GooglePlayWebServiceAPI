@@ -59,6 +59,11 @@ Examples of how to use the code and what results to expect can be found in the [
 
 - Unit test
 
+## Authors
+
+- Izzy
+- Max Base
+
 ---------
 
 # Max Base
