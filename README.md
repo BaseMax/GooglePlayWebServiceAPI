@@ -53,8 +53,6 @@ Examples of how to use the code and what results to expect can be found in the [
     - how to get the permissions an app requests
     - what the result set looks like and how to interprete it
 
-
-
 ## TODO
 
 - Unit test
