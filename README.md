@@ -13,6 +13,7 @@ Tiny script to crawl information of a specific application in the Google play/st
 - `parseCategories`: list available categories
 - `parseApplication`: get details for a specific app
 - `parsePerms`: retrieve permissions requested by a specific app
+- `parsePrivacy`: obtain an app's privacy details (data collected/shared etc)
 - `setDebug`: turn debug mode on or off
 - `getDebug`: check whether debug mode is turned on or off
 
