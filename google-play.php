@@ -140,19 +140,31 @@ class GooglePlay {
     }
 
     $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/dev(eloper)*\?id=(?<id>[^\"]+)"([^\>]*|)>(\<span[^\>]*>)*(?<content>[^\<]+)(<\/span>|)<\/a>/i'));
+	
+    // fix category id
+	$d = new DomDocument();
+	@$d->loadHTML($this->input);
+	$xp = new domxpath($d);
+	$jsonScripts = $xp->query( '//script[@type="application/ld+json"]' );
+	$json = trim( @$jsonScripts->item(0)->nodeValue ); //
+	$data = json_decode($json,true);
 
-    preg_match('/<a class="WpHeLc VfPpkd-mRLv6 VfPpkd-RLmnJb" href="\/store\/apps\/category\/(?<id>[^\"]+)" aria-label="(?<content>[^\"]+)"/i', $this->input, $category);
-    if ( empty($category) ) preg_match('/href="\/store\/apps\/category\/(?<id>[^\"]+)" data-disable-idom="true" data-skip-focus-on-activate="false" jsshadow><span class="VfPpkd-N5Lhkf" jsname="bN97Pc"><span class="VfPpkd-jY41G-V67aGc" jsname="V67aGc">(?<content>[^\<]+)<\/span>/i', $this->input, $category);
-    if (isset($category["id"], $category["content"])) {
-      $values["category"] = trim(strip_tags($category["content"]));
-      $catId = trim(strip_tags($category["id"]));
-      if ($catId=='GAME' || substr($catId,0,5)=='GAME_') $values["type"] = "game";
-      elseif ($catId=='FAMILY' || substr($catId,0,7)=='FAMILY?') $values["type"] = "family";
-      else $values["type"] = "app";
-    } else {
-      $values["category"] = null;
-      $values["type"] = null;
-    }
+	if(isset($data['applicationCategory']))
+	{
+		$values["category"] = $data['applicationCategory'];
+		if(substr($values["category"],0,5)=='GAME_') {
+			$values["type"] = "game";
+		} elseif(substr($values["category"],0,7)=='FAMILY?') {
+			$values["type"] = "family";
+		} else {
+			$values["type"] = "app";
+		}
+	} else {
+		$values["category"] = null;
+		$values["type"] = null;
+	}
+	// end fix category id
+
 
     $values["summary"] = strip_tags($this->getRegVal('/property="og:description" content="(?<content>[^\"]+)/i'));
     $values["description"] = $this->getRegVal('/itemprop="description"[^\>]*><div class="bARER">(?<content>.*?)<\/div><div class=/i');
