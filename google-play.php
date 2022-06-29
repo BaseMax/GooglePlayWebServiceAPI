@@ -13,6 +13,7 @@ class GooglePlay {
   private $debug = false;   // toggle debug output
   private $input = '';      // content retrieved from remote
   private $lastError = '';
+  private $categories = []; // list of Google Play app categories
 
   /** Turn debug mode on or off
    * @method public setDebug
@@ -349,7 +350,7 @@ class GooglePlay {
   /** Parse Play Store page for a given category and return package names
    *  use this::parseCategories to obtain a list of available categories
    * @method public parseCategory
-   * @param string category     name of the category to parse
+   * @param string category     id of the category to parse
    * @return array              array of package names
    */
   public function parseCategory($category) {
@@ -359,15 +360,24 @@ class GooglePlay {
     else return ['success'=>0, 'message'=>$this->lastError, 'data'=>$data];
   }
 
-  /** Obtain list of available categories
+  /** Obtain list of available categories.
+   *  Definitions of all available categories are stored in categories.jsonl using
+   *  [JSONL](https://en.wikipedia.org/wiki/JSONL) format. This method returns them
+   *  as array of objects with the ID as key and the properties id, name, type.
    * @method public parseCategories
-   * @return array  array[0..n] of category names to be used with this::parseCategory
+   * @return array  array of categories to be used with e.g. this::parseCategory
+   * @see           https://developers.apptweak.com/reference/google-play-store-categories
    */
-  public function parseCategories() {
-    if ( ! $this->getApplicationPage('com.google.android.gm','en','US') )
-      return ['success'=>0, 'message'=>$this->lastError, 'data'=>[]];
-    preg_match_all('!href="/store/apps/category/([^"]+)"[^>]*>([^<]+)!i', $this->input, $cats);
-    return ['success'=>1, 'message'=>'', 'data'=>array_unique($cats[1])];
+  public function parseCategories($force=false) {
+    if ( ! empty($this->categories) && ! $force ) ['success'=>1, 'message'=>'', 'data'=>$this->categories];
+    $catfile = __DIR__ . '/categories.jsonl';
+    if ( ! file_exists($catfile) ) return ['success'=>0, 'message'=>"Category definition file '$catfile' does not exist.", 'data'=>[]];
+    $this->categories = [];
+    foreach ( file($catfile) as $line ) {
+      $cat = json_decode($line);
+      $this->categories[$cat->id] = $cat;
+    }
+    return ['success'=>1, 'message'=>'', 'data'=>$this->categories];
   }
 
   /** Obtain list of similar apps

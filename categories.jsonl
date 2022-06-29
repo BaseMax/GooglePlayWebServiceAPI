@@ -1,0 +1,61 @@
+{"id": "ANDROID_WEAR", "name": "Wear OS by Google", "type": "app"}
+{"id": "ART_AND_DESIGN", "name": "Art & Design", "type": "app"}
+{"id": "AUTO_AND_VEHICLES", "name": "Auto & Vehicles", "type": "app"}
+{"id": "BEAUTY", "name": "Beauty", "type": "app"}
+{"id": "BOOKS_AND_REFERENCE", "name": "Books & Reference", "type": "app"}
+{"id": "BUSINESS", "name": "Business", "type": "app"}
+{"id": "COMICS", "name": "Comics", "type": "app"}
+{"id": "COMMUNICATION", "name": "Communication", "type": "app"}
+{"id": "DATING", "name": "Dating", "type": "app"}
+{"id": "EDUCATION", "name": "Education", "type": "app"}
+{"id": "ENTERTAINMENT", "name": "Entertainment", "type": "app"}
+{"id": "EVENTS", "name": "Events", "type": "app"}
+{"id": "FINANCE", "name": "Finance", "type": "app"}
+{"id": "FOOD_AND_DRINK", "name": "Food & Drink", "type": "app"}
+{"id": "HEALTH_AND_FITNESS", "name": "Health & Fitness", "type": "app"}
+{"id": "HOUSE_AND_HOME", "name": "House & Home", "type": "app"}
+{"id": "LIBRARIES_AND_DEMO", "name": "Libraries & Demo", "type": "app"}
+{"id": "LIFESTYLE", "name": "Lifestyle", "type": "app"}
+{"id": "MAPS_AND_NAVIGATION", "name": "Maps & Navigation", "type": "app"}
+{"id": "MEDIA_AND_VIDEO", "name": "Media & Video", "type": "app"}
+{"id": "MEDICAL", "name": "Medical", "type": "app"}
+{"id": "MUSIC_AND_AUDIO", "name": "Music & Audio", "type": "app"}
+{"id": "NEWS_AND_MAGAZINES", "name": "News & Magazines", "type": "app"}
+{"id": "PARENTING", "name": "Parenting", "type": "app"}
+{"id": "PERSONALIZATION", "name": "Personalisation", "type": "app"}
+{"id": "PHOTOGRAPHY", "name": "Photography", "type": "app"}
+{"id": "PRODUCTIVITY", "name": "Productivity", "type": "app"}
+{"id": "SHOPPING", "name": "Shopping", "type": "app"}
+{"id": "SOCIAL", "name": "Social", "type": "app"}
+{"id": "SPORTS", "name": "Sports", "type": "app"}
+{"id": "TOOLS", "name": "Tools", "type": "app"}
+{"id": "TRANSPORTATION", "name": "Transportation", "type": "app"}
+{"id": "TRAVEL_AND_LOCAL", "name": "Travel & Local", "type": "app"}
+{"id": "VIDEO_PLAYERS", "name": "Players & Editors", "type": "app"}
+{"id": "WEATHER", "name": "Weather", "type": "app"}
+{"id": "APP_WIDGETS", "name": "App Widgets", "type": "app"}
+{"id": "GAME", "name": "Game", "type": "game"}
+{"id": "GAME_ACTION", "name": "Action", "type": "game"}
+{"id": "GAME_ADVENTURE", "name": "Adventure", "type": "game"}
+{"id": "GAME_ARCADE", "name": "Arcade", "type": "game"}
+{"id": "GAME_BOARD", "name": "Board", "type": "game"}
+{"id": "GAME_CARD", "name": "Card", "type": "game"}
+{"id": "GAME_CASINO", "name": "Casino", "type": "game"}
+{"id": "GAME_CASUAL", "name": "Casual", "type": "game"}
+{"id": "GAME_EDUCATIONAL", "name": "Educational", "type": "game"}
+{"id": "GAME_MUSIC", "name": "Music", "type": "game"}
+{"id": "GAME_PUZZLE", "name": "Puzzle", "type": "game"}
+{"id": "GAME_RACING", "name": "Racing", "type": "game"}
+{"id": "GAME_ROLE_PLAYING", "name": "Role Playing", "type": "game"}
+{"id": "GAME_SIMULATION", "name": "Simulation", "type": "game"}
+{"id": "GAME_SPORTS", "name": "Sports", "type": "game"}
+{"id": "GAME_STRATEGY", "name": "Strategy", "type": "game"}
+{"id": "GAME_TRIVIA", "name": "Trivia", "type": "game"}
+{"id": "GAME_WORD", "name": "Word", "type": "game"}
+{"id": "FAMILY", "name": "Family", "type": "family"}
+{"id": "FAMILY_ACTION", "name": "Family Action & Adventure", "type": "family"}
+{"id": "FAMILY_BRAINGAMES", "name": "Family Brain Games", "type": "family"}
+{"id": "FAMILY_CREATE", "name": "Family Creativity", "type": "family"}
+{"id": "FAMILY_EDUCATION", "name": "Family Education", "type": "family"}
+{"id": "FAMILY_MUSICVIDEO", "name": "Family Music & Video", "type": "family"}
+{"id": "FAMILY_PRETEND", "name": "Family Pretend Play", "type": "family"}
