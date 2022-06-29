@@ -155,7 +155,7 @@ class GooglePlay {
     }
 
     $values["summary"] = strip_tags($this->getRegVal('/property="og:description" content="(?<content>[^\"]+)/i'));
-    $values["description"] = $this->getRegVal('/itemprop="description"[^\>]*><div class="bARER">(?<content>.*?)<\/div><div class=/i');
+    $values["description"] = $this->getRegVal('/itemprop="description"[^\>]*><div class="bARER"[^\>]*>(?<content>.*?)<\/div><div class=/i');
     if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out **TODO:** check if this still applies (2022-05-27)
       if ($this->debug) echo "Original Description:\n" . $values["description"] . "\n\n";
       $values["description"] = preg_replace('!.*?<div jsname="Igi1ac" style="display:none;">(.+)!ims', '$1', $values["description"]);
