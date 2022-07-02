@@ -1,7 +1,7 @@
 <?php
 /** Crawl information of a specific application in the Google Play Store
  * @class     GooglePlay
- * @version   1.0.1
+ * @version   1.1.0
  * @author    Max Base & Izzy
  * @copyright MIT https://github.com/BaseMax/GooglePlayWebServiceAPI/blob/master/LICENSE
  * @log       2020-10-19 first release
@@ -141,20 +141,6 @@ class GooglePlay {
     }
 
     $values["developer"] = strip_tags($this->getRegVal('/href="\/store\/apps\/dev(eloper)*\?id=(?<id>[^\"]+)"([^\>]*|)>(\<span[^\>]*>)*(?<content>[^\<]+)(<\/span>|)<\/a>/i'));
-
-    preg_match('/<a class="WpHeLc VfPpkd-mRLv6 VfPpkd-RLmnJb" href="\/store\/apps\/category\/(?<id>[^\"]+)" aria-label="(?<content>[^\"]+)"/i', $this->input, $category);
-    if ( empty($category) ) preg_match('/href="\/store\/apps\/category\/(?<id>[^\"]+)" data-disable-idom="true" data-skip-focus-on-activate="false" jsshadow><span class="VfPpkd-N5Lhkf" jsname="bN97Pc"><span class="VfPpkd-jY41G-V67aGc" jsname="V67aGc">(?<content>[^\<]+)<\/span>/i', $this->input, $category);
-    if (isset($category["id"], $category["content"])) {
-      $values["category"] = trim(strip_tags($category["content"]));
-      $catId = trim(strip_tags($category["id"]));
-      if ($catId=='GAME' || substr($catId,0,5)=='GAME_') $values["type"] = "game";
-      elseif ($catId=='FAMILY' || substr($catId,0,7)=='FAMILY?') $values["type"] = "family";
-      else $values["type"] = "app";
-    } else {
-      $values["category"] = null;
-      $values["type"] = null;
-    }
-
     $values["summary"] = strip_tags($this->getRegVal('/property="og:description" content="(?<content>[^\"]+)/i'));
     $values["description"] = $this->getRegVal('/itemprop="description"[^\>]*><div class="bARER"[^\>]*>(?<content>.*?)<\/div><div class=/i');
     if ( strtolower(substr($lang,0,2)) != 'en' ) { // Google sometimes keeps the EN description additionally, so we need to filter it out **TODO:** check if this still applies (2022-05-27)
@@ -204,6 +190,28 @@ class GooglePlay {
     $values["votes"] = $this->getRegVal('/<div class="g1rdde">(?<content>[^>]+) reviews<\/div>/i');
     $values["price"] = $this->getRegVal('/<meta itemprop="price" content="(?<content>[^"]+)">/i');
 
+    // ld+json data, see https://github.com/BaseMax/GooglePlayWebServiceAPI/issues/22#issuecomment-1168397748
+    $d = new DomDocument();
+    @$d->loadHTML($this->input);
+    $xp = new domxpath($d);
+    $jsonScripts = $xp->query( '//script[@type="application/ld+json"]' );
+    $json = trim( @$jsonScripts->item(0)->nodeValue ); //
+    $data = json_decode($json,true);
+    if (isset($data['applicationCategory'])) {
+      $values["category"] = $data['applicationCategory'];
+      if ( substr($values["category"],0,5)=='GAME_' ) $values["type"] = "game";
+      elseif ( substr($values["category"],0,7)=='FAMILY?' ) $values["type"] = "family";
+      else $values["type"] = "app";
+      $cats = $this->parseCategories();
+      if ( $cats["success"] && !empty($cats["data"][$values["category"]]) ) $values["category"] = $cats["data"][$values["category"]]->name;
+    } else {
+      $values["category"] = null;
+      $values["type"] = null;
+    }
+    if ( empty($values["summary"]) && !empty($data["description"]) ) $values["summary"] = $data["description"];
+    if (isset($data["contentRating"])) $values["contentRating"] = $data["contentRating"];
+    else $values["contentRating"] = "";
+
     $limit = 5; $proto = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
       $proto = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // ds:8 hash:22 would have reviews
@@ -214,6 +222,7 @@ class GooglePlay {
         if ( empty($values["featureGraphic"]) ) $values["featureGraphic"] = $proto[1][2][96][0][3][2];
         if ( empty($values["video"]) && !empty($proto[1][2][100]) ) $values["video"] = $proto[1][2][100][0][0][3][2];
         if ( empty($values["summary"]) && !empty($proto[1][2][73]) ) $values["summary"] = $proto[1][2][73][0][1]; // 1, 2, 73, 0, 1
+        // category: $proto[1][2][79][0][0][0]; catId: $proto[1][2][79][0][0][2]
         // screenshots: 1,2,78,0,0-n; 1=format,2=[wid,hei],3.2=url
         // more details see: https://github.com/JoMingyu/google-play-scraper/blob/2caddd098b63736318a7725ff105907f397b9a48/google_play_scraper/constants/element.py
         break;
