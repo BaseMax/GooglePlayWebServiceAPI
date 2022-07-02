@@ -211,6 +211,10 @@ class GooglePlay {
     if ( empty($values["summary"]) && !empty($data["description"]) ) $values["summary"] = $data["description"];
     if (isset($data["contentRating"])) $values["contentRating"] = $data["contentRating"];
     else $values["contentRating"] = "";
+    if ( isset($data["aggregateRating"]) ) {
+      if ( !empty($data["aggregateRating"]["ratingValue"]) ) $values["rating"] = $data["aggregateRating"]["ratingValue"];
+      if ( !empty($data["aggregateRating"]["ratingCount"]) ) $values["votes"] = $data["aggregateRating"]["ratingCount"];
+    }
 
     $limit = 5; $proto = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
