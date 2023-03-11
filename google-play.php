@@ -294,7 +294,7 @@ class GooglePlay {
     }
     if (!empty($arr[2])) {
       if (array_key_exists('misc',$perms)) $perms['misc']['perms'] = array_merge($perms['misc']['perms'],$arr[2]);
-      elseif ( is_array($arr[1][0]) && !empty($arr[1][0][0]) ) $perms['misc'] = ['group_name'=>$arr[1][0][0], 'perms'=>$arr[2]];
+      elseif ( is_array ($arr[1]) && is_array($arr[1][0]) && !empty($arr[1][0][0]) ) $perms['misc'] = ['group_name'=>$arr[1][0][0], 'perms'=>$arr[2]];
       else $perms['misc'] = [];
       foreach($arr[2] as $perm) $perms_unique[] = $perm[1];
     }
