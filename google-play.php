@@ -83,10 +83,10 @@ class GooglePlay {
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
       $response_code = $match[1];
       switch ($response_code) {
-        case "200" : // HTTP/1.0 200 OK
+        case '200' : // HTTP/1.0 200 OK
           break;
-        case "400" : // echo "! No XHR for '$pkg'\n";
-        case "404" : // app no longer on play
+        case '400' : // echo "! No XHR for '$pkg'\n";
+        case '404' : // app no longer on play
         default:
           return ['packageName'=>$packageName, 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>$http_response_header[0]];
           break;
@@ -103,10 +103,10 @@ class GooglePlay {
     if ( gettype($verInfo) == 'NULL' ) { // happens rarely, but happens
       return ['packageName'=>$packageName, 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>'Google returned no version info'];
     } else {
-      $values["packageName"] = $packageName;
-      $values["versionName"] = $verInfo[1];
-      $values["minimumSDKVersion"] = $verInfo[2];
-      $values["size"] = $verInfo[0];
+      $values['packageName'] = $packageName;
+      $values['versionName'] = $verInfo[1];
+      $values['minimumSDKVersion'] = $verInfo[2];
+      $values['size'] = $verInfo[0];
       $values['success'] = 1;
       $values['message'] = $message;
     }
