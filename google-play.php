@@ -100,7 +100,7 @@ class GooglePlay {
     $values = [];
     $message = '';
 
-    if ( gettype($verInfo) == 'NULL' ) { // happens rarely, but happens
+    if ( gettype($verInfo) == 'NULL' ) { // happens rarely, but happens; on a subsequent call for the same package it might succeed (temp hick-up?)
       return ['packageName'=>$packageName, 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>'Google returned no version info'];
     } else {
       $values['packageName'] = $packageName;
