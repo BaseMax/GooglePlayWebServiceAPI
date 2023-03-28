@@ -88,11 +88,11 @@ class GooglePlay {
         case "400" : // echo "! No XHR for '$pkg'\n";
         case "404" : // app no longer on play
         default:
-          return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>$http_response_header[0]];
+          return ['packageName'=>'', 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>$http_response_header[0]];
           break;
       }
     } else { // network error (e.g. "failed to open stream: Connection timed out")
-      return ['success'=>0, 'grouped'=>[], 'perms'=>[], 'message'=>'network error'];
+      return ['packageName'=>'', 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>'network error'];
     }
 
     $proto = preg_replace('!^\)]}.*?\n!','',$proto);
@@ -101,11 +101,15 @@ class GooglePlay {
     $message = '';
 
     $values["packageName"] = $packageName;
-    $values["versionName"] = $verInfo[1];
-    $values["minimumSDKVersion"] = $verInfo[2];
-    $values["size"] = $verInfo[0];
-    $values['success'] = 1;
-    $values['message'] = $message;
+    if ( gettype($verInfo) == 'NULL' ) { // happens rarely, but happens
+      return ['packageName'=>'', 'versionName'=>'', 'minimumSDKVersion'=>0, 'size'=>0, 'success'=>0, 'message'=>'Google returned no version info'];
+    } else {
+      $values["versionName"] = $verInfo[1];
+      $values["minimumSDKVersion"] = $verInfo[2];
+      $values["size"] = $verInfo[0];
+      $values['success'] = 1;
+      $values['message'] = $message;
+    }
 
     return $values;
   }
