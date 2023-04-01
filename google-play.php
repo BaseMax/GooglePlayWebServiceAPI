@@ -220,7 +220,7 @@ class GooglePlay {
       if ( !empty($data["aggregateRating"]["ratingCount"]) ) $values["votes"] = $data["aggregateRating"]["ratingCount"];
     }
 
-    $limit = 5; $proto = ''; $proto2 = '';
+    $limit = 5; $proto = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
       $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
       if ( empty($proto) || empty($proto[1]) ) {
