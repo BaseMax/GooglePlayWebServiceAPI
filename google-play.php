@@ -220,9 +220,9 @@ class GooglePlay {
       if ( !empty($data["aggregateRating"]["ratingCount"]) ) $values["votes"] = $data["aggregateRating"]["ratingCount"];
     }
 
-    $limit = 5; $proto = '';
+    $limit = 5; $proto = ''; $proto2 = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
-      $proto = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // ds:8 hash:22 would have reviews
+      $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
       if ( empty($proto) || empty($proto[1]) ) {
         $this->getApplicationPage($packageName, $lang, $loc);
         --$limit;
@@ -234,6 +234,26 @@ class GooglePlay {
         // screenshots: 1,2,78,0,0-n; 1=format,2=[wid,hei],3.2=url
         // more details see: https://github.com/JoMingyu/google-play-scraper/blob/2caddd098b63736318a7725ff105907f397b9a48/google_play_scraper/constants/element.py
         break;
+      }
+    }
+
+    // reviews
+    $values["reviews"] = [];
+    if ( $proto = json_decode($this->getRegVal("/key: 'ds:7'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")) ) { // DataSource:7 = reviews
+      foreach($proto[0] as $rev) {
+        $r["review_id"] = $rev[0];
+        $r["reviewed_version"] = $rev[10];
+        $r["review_date"] = $rev[5][0];
+        $r["text"]  = $rev[4];
+        $r["stars"] = $rev[2];
+        $r["thumbs"] = $rev[6];
+        $r["reviewer"] = [
+          "id"=>$rev[9][0],
+          "name"=>$rev[9][1],
+          "avatar"=>$rev[9][3][0][3][2],
+          "bg_image"=>$rev[9][4][3][2]
+        ];
+        $values["reviews"][] = $r;
       }
     }
 
