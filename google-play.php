@@ -244,17 +244,20 @@ class GooglePlay {
         $r["review_id"] = $rev[0];
         $r["reviewed_version"] = $rev[10];
         $r["review_date"] = $rev[5][0];
-        $r["text"]  = $rev[4];
+        $r["review_text"]  = $rev[4];
         $r["stars"] = $rev[2];
-        $r["thumbs"] = $rev[6];
+        $r["like_count"] = $rev[6];
         $r["reviewer"] = [
-          "id"=>$rev[9][0],
+          "reviewer_id"=>$rev[9][0],
           "name"=>$rev[9][1],
           "avatar"=>$rev[9][3][0][3][2],
           "bg_image"=>$rev[9][4][3][2]
         ];
         $values["reviews"][] = $r;
       }
+      $values["review_token"] = $proto[1][1]; // needed if we want to fetch more reviews later
+    } else {
+      $values["review_token"] = '';
     }
 
     if ($this->debug) {
