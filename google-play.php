@@ -253,6 +253,15 @@ class GooglePlay {
           "avatar"=>$rev[9][3][0][3][2],
           "bg_image"=>$rev[9][4][3][2]
         ];
+        if ( empty($rev[7]) ) {
+          $r["reply"] = [];
+        } else {
+          $r["response"] = [
+            "responder_name"=>$rev[7][0],
+            "response_text"=>$rev[7][1],
+            "response_date"=>$rev[7][2][0]
+          ];
+        }
         $values["reviews"][] = $r;
       }
       $values["review_token"] = $proto[1][1]; // needed if we want to fetch more reviews later
