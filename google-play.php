@@ -222,7 +222,7 @@ class GooglePlay {
 
     $limit = 5; $proto = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
-      $proto = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // ds:8 hash:22 would have reviews
+      $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
       if ( empty($proto) || empty($proto[1]) ) {
         $this->getApplicationPage($packageName, $lang, $loc);
         --$limit;
@@ -235,6 +235,38 @@ class GooglePlay {
         // more details see: https://github.com/JoMingyu/google-play-scraper/blob/2caddd098b63736318a7725ff105907f397b9a48/google_play_scraper/constants/element.py
         break;
       }
+    }
+
+    // reviews
+    $values["reviews"] = [];
+    if ( $proto = json_decode($this->getRegVal("/key: 'ds:7'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")) ) { // DataSource:7 = reviews
+      foreach($proto[0] as $rev) {
+        $r["review_id"] = $rev[0];
+        $r["reviewed_version"] = $rev[10];
+        $r["review_date"] = $rev[5][0];
+        $r["review_text"]  = $rev[4];
+        $r["stars"] = $rev[2];
+        $r["like_count"] = $rev[6];
+        $r["reviewer"] = [
+          "reviewer_id"=>$rev[9][0],
+          "name"=>$rev[9][1],
+          "avatar"=>$rev[9][3][0][3][2],
+          "bg_image"=>$rev[9][4][3][2]
+        ];
+        if ( empty($rev[7]) ) {
+          $r["reply"] = [];
+        } else {
+          $r["response"] = [
+            "responder_name"=>$rev[7][0],
+            "response_text"=>$rev[7][1],
+            "response_date"=>$rev[7][2][0]
+          ];
+        }
+        $values["reviews"][] = $r;
+      }
+      $values["review_token"] = $proto[1][1]; // needed if we want to fetch more reviews later
+    } else {
+      $values["review_token"] = '';
     }
 
     if ($this->debug) {
