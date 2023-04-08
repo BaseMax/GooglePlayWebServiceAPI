@@ -70,7 +70,7 @@ class GooglePlay {
   public function dump_raw($packageName, $fileName='', $lang='en_US', $loc='US') {
     if ( empty($this->input) ) $this->getApplicationPage($packageName, $lang='en_US', $loc='US');
     if ( empty($fileName) ) $fileName = $packageName;
-    file_put_contents("${fileName}.txt", $this->input);
+    file_put_contents("${fileName}.html", $this->input);
     // also dump the protos
     for ($i=0;$i<10;++$i) {
       if ( $proto  = json_decode( $this->getRegVal("/key: 'ds:${i}'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims") ) ) {
