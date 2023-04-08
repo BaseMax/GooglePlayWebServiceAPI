@@ -59,6 +59,26 @@ class GooglePlay {
     }
   }
 
+  /** Dump the raw page content for debugging purposes
+   * @method dump_raw
+   * @param          string packageName identifier for the app, e.g. 'com.example.app'
+   * @param optional string fileName    basename of the files to write to, optionally with leading path (default: ${packageName}; extensions will be appended)
+   * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
+   * @param optional string loc         locale, mainly for currency. Again two-letter, but uppercase
+   * @return         bool   success
+   */
+  public function dump_raw($packageName, $fileName='', $lang='en_US', $loc='US') {
+    if ( empty($this->input) ) $this->getApplicationPage($packageName, $lang='en_US', $loc='US');
+    if ( empty($fileName) ) $fileName = $packageName;
+    file_put_contents("${fileName}.txt", $this->input);
+    // also dump the protos
+    for ($i=1;$i<10;++$i) {
+      if ( $proto  = json_decode( $this->getRegVal("/key: 'ds:${i}'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims") ) ) {
+        file_put_contents("${fileName}_ds${i}.json", json_encode($proto, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+      }
+    }
+  }
+
   /** Obtain app version details
    * @method public parseVersion
    * @param          string packageName identifier for the app, e.g. 'com.example.app'
