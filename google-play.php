@@ -72,7 +72,7 @@ class GooglePlay {
     if ( empty($fileName) ) $fileName = $packageName;
     file_put_contents("${fileName}.txt", $this->input);
     // also dump the protos
-    for ($i=1;$i<10;++$i) {
+    for ($i=0;$i<10;++$i) {
       if ( $proto  = json_decode( $this->getRegVal("/key: 'ds:${i}'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims") ) ) {
         file_put_contents("${fileName}_ds${i}.json", json_encode($proto, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
       }
