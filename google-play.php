@@ -75,6 +75,8 @@ class GooglePlay {
     for ($i=0;$i<10;++$i) {
       if ( $proto  = json_decode( $this->getRegVal("/key: 'ds:${i}'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims") ) ) {
         file_put_contents("${fileName}_ds${i}.json", json_encode($proto, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+      } elseif ( $proto  = json_decode( $this->getRegVal("/key: 'ds:${i}'. hash: '\d+'. data:(?<content>\[\[.+?). sideChannel: .*?\);<\/script/ims") ) ) { // ds:3
+        file_put_contents("${fileName}_ds${i}.json", json_encode($proto, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
       }
     }
   }
