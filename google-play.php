@@ -244,7 +244,7 @@ class GooglePlay {
 
     $limit = 5; $proto = '';
     while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
-      $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '7'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
+      $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
       if ( empty($proto) || empty($proto[1]) ) {
         $this->getApplicationPage($packageName, $lang, $loc);
         --$limit;
@@ -264,17 +264,19 @@ class GooglePlay {
     if ( $proto = json_decode($this->getRegVal("/key: 'ds:7'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")) ) { // DataSource:7 = reviews
       foreach($proto[0] as $rev) {
         $r["review_id"] = $rev[0];
-        $r["reviewed_version"] = $rev[10];
-        $r["review_date"] = $rev[5][0];
-        $r["review_text"]  = $rev[4];
-        $r["stars"] = $rev[2];
-        $r["like_count"] = $rev[6];
-        $r["reviewer"] = [
-          "reviewer_id"=>$rev[9][0],
-          "name"=>$rev[9][1],
-          "avatar"=>$rev[9][3][0][3][2],
-          "bg_image"=>$rev[9][4][3][2]
-        ];
+        $r["reviewed_version"] = (isset($rev[10])) ? $rev[10] : '';
+        $r["review_date"] = isset($rev[5][0]) ? $rev[5][0] : '';
+        $r["review_text"]  = isset($rev[4]) ? $rev[4] : '';
+        $r["stars"] = isset($rev[2]) ? $rev[2] : '';
+        $r["like_count"] = isset ($rev[6]) ? $rev[6] : '';
+        if ( isset($rev[9]) && !empty($rev[9]) ) {
+          $r["reviewer"] = [
+            "reviewer_id"=>$rev[9][0],
+            "name"=>$rev[9][1],
+            "avatar"=>$rev[9][3][0][3][2],
+            "bg_image"=>$rev[9][4][3][2]
+          ];
+        } else $r["reviewer"] = [];
         if ( empty($rev[7]) ) {
           $r["reply"] = [];
         } else {
