@@ -251,7 +251,7 @@ class GooglePlay {
 
     // reviews
     $values["reviews"] = [];
-    if ( $proto = json_decode($this->getRegVal("/key: 'ds:7'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")) ) { // DataSource:7 = reviews
+    if ( $proto = json_decode($this->getRegVal("/key: 'ds:8'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")) ) { // DataSource:7 = reviews
       foreach($proto[0] as $rev) {
         $r["review_id"] = $rev[0];
         $r["reviewed_version"] = (isset($rev[10])) ? $rev[10] : '';
