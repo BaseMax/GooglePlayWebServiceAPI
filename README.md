@@ -16,6 +16,7 @@ Tiny script to crawl information of a specific application in the Google play/st
 - `parsePrivacy`: obtain an app's privacy details (data collected/shared etc)
 - `setDebug`: turn debug mode on or off
 - `getDebug`: check whether debug mode is turned on or off
+- `dump_raw`: dump the raw data (HTML of the page plus JSON of the data sources) for debug/evaluation
 
 ## Using PHP GooglePlay
 ```php

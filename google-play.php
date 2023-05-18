@@ -60,7 +60,7 @@ class GooglePlay {
   }
 
   /** Dump the raw page content for debugging purposes
-   * @method dump_raw
+   * @method public dump_raw
    * @param          string packageName identifier for the app, e.g. 'com.example.app'
    * @param optional string fileName    basename of the files to write to, optionally with leading path (default: ${packageName}; extensions will be appended)
    * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
@@ -292,7 +292,7 @@ class GooglePlay {
   }
 
   /** Obtain permissions for a given app
-   * @method parsePerms
+   * @method public parsePerms
    * @param          string packageName identifier for the app, e.g. 'com.example.app'
    * @param optional string lang        language for translations. Should be ISO 639-1 two-letter code. Default: en
    * @return         array              permission on success, details on the error otherwise
@@ -445,7 +445,7 @@ class GooglePlay {
   }
 
   /** Obtain list of similar apps
-   * @method parseSimilar
+   * @method public parseSimilar
    * @param  string packageName package name of the app to find similars for, e.g. 'com.example.app'
    * @return array              array of package names
    */
@@ -459,7 +459,7 @@ class GooglePlay {
   }
 
   /** Obtain list of other apps by same author
-   * @method parseOthers
+   * @method public parseOthers
    * @param  string packageName package name of the app to find similars for, e.g. 'com.example.app'
    * @return array              array of package names
    */
