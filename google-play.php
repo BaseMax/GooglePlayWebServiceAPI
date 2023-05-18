@@ -242,22 +242,12 @@ class GooglePlay {
       if ( !empty($data["aggregateRating"]["ratingCount"]) ) $values["votes"] = $data["aggregateRating"]["ratingCount"];
     }
 
-    $limit = 5; $proto = '';
-    while ( empty($proto) && $limit > 0 ) { // sometimes protobuf is missing, but present again on subsequent call
-      $proto  = json_decode($this->getRegVal("/key: 'ds:4'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims")); // DataSource:4 = featureGraphic, video, summary
-      if ( empty($proto) || empty($proto[1]) ) {
-        $this->getApplicationPage($packageName, $lang, $loc);
-        --$limit;
-      } else {
-        if ( empty($values["featureGraphic"]) ) $values["featureGraphic"] = $proto[1][2][96][0][3][2];
-        if ( empty($values["video"]) && !empty($proto[1][2][100]) ) $values["video"] = $proto[1][2][100][0][0][3][2];
-        if ( empty($values["summary"]) && !empty($proto[1][2][73]) ) $values["summary"] = $proto[1][2][73][0][1]; // 1, 2, 73, 0, 1
-        // category: $proto[1][2][79][0][0][0]; catId: $proto[1][2][79][0][0][2]
-        // screenshots: 1,2,78,0,0-n; 1=format,2=[wid,hei],3.2=url
-        // more details see: https://github.com/JoMingyu/google-play-scraper/blob/2caddd098b63736318a7725ff105907f397b9a48/google_play_scraper/constants/element.py
-        break;
-      }
-    }
+    $proto  = json_decode($this->getRegVal("/key: 'ds:5'. hash: '\d+'. data:(?<content>\[\[\[.+?). sideChannel: .*?\);<\/script/ims"));
+    if ( empty($values["featureGraphic"]) && !empty($proto[1][2][96][0][3][2]) ) $values["featureGraphic"] = $proto[1][2][96][0][3][2];
+    if ( empty($values["video"]) && !empty($proto[1][2][100][0][0][3][2]) ) $values["video"] = $proto[1][2][100][0][0][3][2];
+    if ( empty($values["summary"]) && !empty($proto[1][2][73][0][1]) ) $values["summary"] = $proto[1][2][73][0][1];
+    if ( empty($proto[1][2][69][1][0]) ) $values["developerEmail"] = ""; else $values["developerEmail"] = $proto[1][2][69][1][0];
+    if ( empty($proto[1][2][69][0][5][2]) ) $values["developerWebsite"] = ""; else $values["developerWebsite"] = $proto[1][2][69][0][5][2];
 
     // reviews
     $values["reviews"] = [];
