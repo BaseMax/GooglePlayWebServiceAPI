@@ -76,7 +76,7 @@ class GooglePlay {
     if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
     if ( $ignoreErrors )     $opts['http']['ignore_errors'] = true;
     if ( !empty($header) )   $opts['http']['header'] = $header;
-    if ( !empty($content) )  $opts['http']['conent'] = $content;
+    if ( !empty($content) )  $opts['http']['content'] = $content;
     return stream_context_create($opts);
   }
 
@@ -130,16 +130,7 @@ class GooglePlay {
     $value = sprintf("[[%s]]", $version);
     $freq = urlencode($value);
 
-    $opts = ['http' => array(
-      'method'  => 'POST',
-      'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
-                  ."\r\n".'Referer: https://play.google.com/',
-      'content' => "f.req=$freq",
-      'ignore_errors' => TRUE
-      )
-    ];
-    if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
-    $context  = stream_context_create($opts);
+    $context = $this->createStreamContext('POST',true,"f.req=$freq","Content-type: application/x-www-form-urlencoded;charset=utf-8\r\nReferer: https://play.google.com/\r\n");
     if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?hl=' . $lang, false, $context) ) { // proto_buf/JSON data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
       $response_code = $match[1];
@@ -344,16 +335,8 @@ class GooglePlay {
    *              These perms have numeric keys (0 and 1). 0 seems always to be empty, 1 holds the permission description.
    */
   public function parsePerms($packageName, $lang='en') {
-    $opts = ['http' => array(
-      'method'  => 'POST',
-      'header'  => 'Content-type: application/x-www-form-urlencoded;charset=utf-8'
-                  ."\r\n".'Referer: https://play.google.com/',
-      'content' => 'f.req=%5B%5B%5B%22xdSrCf%22%2C%22%5B%5Bnull%2C%5B%5C%22' . $packageName . '%5C%22%2C7%5D%2C%5B%5D%5D%5D%22%2Cnull%2C%221%22%5D%5D%5D',
-      'ignore_errors' => TRUE
-      )
-    ];
-    if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
-    $context  = stream_context_create($opts);
+    $context = $this->createStreamContext('POST', true, 'f.req=%5B%5B%5B%22xdSrCf%22%2C%22%5B%5Bnull%2C%5B%5C%22' . $packageName . '%5C%22%2C7%5D%2C%5B%5D%5D%5D%22%2Cnull%2C%221%22%5D%5D%5D',
+               "Content-type: application/x-www-form-urlencoded;charset=utf-8\r\nReferer: https://play.google.com/\r\n");
     if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl=' . $lang . '&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
       $response_code = $match[1];
