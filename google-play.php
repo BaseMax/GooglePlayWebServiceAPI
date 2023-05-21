@@ -14,6 +14,7 @@ class GooglePlay {
   private $input = '';      // content retrieved from remote
   private $lastError = '';
   private $categories = []; // list of Google Play app categories
+  private $ua = '';         // UserAgent (default: none; currently used for debugging)
 
   /** Turn debug mode on or off
    * @method public setDebug
@@ -31,6 +32,23 @@ class GooglePlay {
     return $this->debug;
   }
 
+  /** set a specific user agent
+   *  Currently, mostly for debug – to find out if a given UA would return details otherwise omitted
+   * @method public setUA
+   * @param string userAgent user agent to set
+   */
+  public function setUA($userAgent) {
+    $this->ua = $userAgent;
+  }
+
+  /** get the currently set user agent
+   * @method public getUA
+   * @return string userAgent user which is currently set
+   */
+  public function getUA($userAgent) {
+    return $this->ua;
+  }
+
   /** Parse a given RegEx and return the match marked by '(?<content>)'
    * @method protected getRegVal
    * @param string regEx    regular expression to parse
@@ -42,6 +60,26 @@ class GooglePlay {
     else return null;
   }
 
+  /** Create a stream context for file_get_contents
+   * @parameter optional string method          method to use (default: GET)
+   * @parameter optional bool   ignoreErrors    whether to fetch the content even on failure status codes (default: false)
+   * @parameter optional string content         content to send (mostly used for POST), empty for none (default)
+   * @parameter optional string header          header variables to set (charset, cookies etc). Default: "Accept-Charset: UTF-8\r\n"
+   * @return resource streamContext
+   */
+  protected function createStreamContext($method='GET',$ignoreErrors=false,$content='',$header="Accept-Charset: UTF-8\r\n") {
+    $opts = ['http' =>
+      [
+        'method' => strtoupper($method)
+      ]
+    ];
+    if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
+    if ( $ignoreErrors )     $opts['http']['ignore_errors'] = true;
+    if ( !empty($header) )   $opts['http']['header'] = $header;
+    if ( !empty($content) )  $opts['http']['conent'] = $content;
+    return stream_context_create($opts);
+  }
+
   /** Fetch app page from Google Play
    * @method protected getApplicationPage
    * @param          string packageName identifier for the app, e.g. 'com.example.app'
@@ -51,7 +89,7 @@ class GooglePlay {
    */
   protected function getApplicationPage($packageName, $lang='en_US', $loc='US') {
     $link = "https://play.google.com/store/apps/details?id=" . $packageName . "&hl=$lang&gl=$loc";
-    if ( ! $this->input = @file_get_contents($link) ) {
+    if ( ! $this->input = @file_get_contents($link,false,$this->createStreamContext()) ) {
       $this->lastError = $http_response_header[0];
       return false;
     } else {
@@ -100,6 +138,7 @@ class GooglePlay {
       'ignore_errors' => TRUE
       )
     ];
+    if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
     $context  = stream_context_create($opts);
     if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?hl=' . $lang, false, $context) ) { // proto_buf/JSON data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
@@ -313,6 +352,7 @@ class GooglePlay {
       'ignore_errors' => TRUE
       )
     ];
+    if ( !empty($this->ua) ) $opts['http']['user_agent'] = $this->ua;
     $context  = stream_context_create($opts);
     if ( $proto = @file_get_contents('https://play.google.com/_/PlayStoreUi/data/batchexecute?rpcids=xdSrCf&bl=boq_playuiserver_20201201.06_p0&hl=' . $lang . '&authuser&soc-app=121&soc-platform=1&soc-device=1&rt=c&f.sid=-8792622157958052111&_reqid=257685', false, $context) ) { // raw proto_buf data
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
@@ -364,7 +404,7 @@ class GooglePlay {
       if ($link == "" || $link == null) {
         $link = "https://play.google.com/apps";
       }
-      if ( ! $input = @file_get_contents($link) ) {
+      if ( ! $this->input = @file_get_contents($link,false,$this->createStreamContext()) ) {
         $this->lastError = $http_response_header[0];
         return [];
       } else {
@@ -495,7 +535,7 @@ class GooglePlay {
    */
   public function parsePrivacy($packageName, $lang='en') {
     $link = sprintf('https://play.google.com/store/apps/datasafety?id=%s&hl=%s', $packageName, $lang);
-    if ( $this->input = @file_get_contents($link) ) {
+    if ( $this->input = @file_get_contents($link,false,$this->createStreamContext()) ) {
       preg_match("!HTTP/1\.\d\s+(\d{3})\s+(.+)$!i", $http_response_header[0], $match);
       $response_code = $match[1];
       switch ($response_code) {
