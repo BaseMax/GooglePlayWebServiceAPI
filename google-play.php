@@ -278,7 +278,7 @@ class GooglePlay {
         }
         $values["reviews"][] = $r;
       }
-      $values["review_token"] = $proto[1][1]; // needed if we want to fetch more reviews later
+      $values["review_token"] = @$proto[1][1] ?: ''; // needed if we want to fetch more reviews later (not always set)
     } else {
       $values["review_token"] = '';
     }
