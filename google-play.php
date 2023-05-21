@@ -67,7 +67,7 @@ class GooglePlay {
    * @parameter optional string header          header variables to set (charset, cookies etc). Default: "Accept-Charset: UTF-8\r\n"
    * @return resource streamContext
    */
-  protected function createStreamContext($method='GET',$ignoreErrors=false,$content='',$header="Accept-Charset: UTF-8\r\n") {
+  protected function createStreamContext($method='GET', $ignoreErrors=false, $content='', $header="Accept-Charset: UTF-8\r\n") {
     $opts = ['http' =>
       [
         'method' => strtoupper($method)
